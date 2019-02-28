@@ -1,0 +1,66 @@
+-- s_org_ext
+--===========
+
+-- Record count checks
+=======================
+
+Select count(*) from siebel_base.s_org_ext;
+
+-- 6,335
+
+Select count(*) from siebel_raw.s_org_ext;
+
+-- 6,335
+
+-- Record Differences
+=======================
+
+-- RAW -> BASE
+
+Select *
+From siebel_raw.s_org_ext RAW
+WHERE  NOT EXISTS (Select * from siebel_base.s_org_ext BASE 
+WHERE RAW.row_wid = BASE.row_wid);
+
+-- 0 Records
+
+-- BASE -> RAW
+
+Select *
+From siebel_base.s_org_ext BASE
+WHERE  NOT EXISTS (Select * from siebel_raw.s_org_ext RAW 
+WHERE RAW.row_wid = BASE.row_wid);
+
+
+-- 0 Records
+
+-- Table Comparison
+====================
+
+--Records Mismatch count
+
+Select *
+FROM
+(Select RAW.* , rank() OVER (PARTITION by row_id, substr(last_upd,1,10) ORDER BY last_upd DESC) as Record_rank
+From siebel_raw.s_org_ext RAW
+) SOURCE
+WHERE Record_rank = 1
+AND NOT EXISTS (Select BASE.*,'1' AS Rank from siebel_base.s_org_ext BASE 
+WHERE SOURCE.row_wid = BASE.row_wid);
+
+
+-- 0 Records Returned
+
+-- Matching Records
+
+Select *
+FROM
+(Select RAW.* , rank() OVER (PARTITION by row_id, substr(last_upd,1,10) ORDER BY last_upd DESC) as Record_rank
+From siebel_raw.s_org_ext RAW
+) SOURCE
+WHERE Record_rank = 1
+AND EXISTS (Select BASE.*,'1' AS Rank from siebel_base.s_org_ext BASE 
+WHERE SOURCE.row_wid = BASE.row_wid);
+
+
+-- 6,335 Records Returned
