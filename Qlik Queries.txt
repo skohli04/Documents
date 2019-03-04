@@ -1,0 +1,50 @@
+
+
+Creating VDU
+=============
+=============
+
+Go to - Data Load Editor (Main)
+====================
+
+
+// LIB CONNECT TO 'Hive_connection';
+
+// S_contact:
+// Select * FROM Siebel_base.s_contact;
+
+// store S_contact into lib://GLIF_data_Folder/s_contact_base.qvd;
+
+// Drop Table S_contact;
+
+// s_user:
+// Select * FROM Siebel_base.s_user;
+
+// store s_user into lib://GLIF_data_Folder/s_user_base.qvd;
+
+// Drop Table s_user;
+
+Loading Data
+=============
+=============
+
+Go to - Data Load Editor (Section) - Add a section
+====================================================
+
+s_contac_base:
+LOAD *
+FROM [lib://GLIF_data_Folder/s_contact_base.qvd]
+(qvd);
+
+Qualify *;
+Unqualify row_id;
+s_user:
+LOAD
+     *
+FROM [lib://GLIF_data_Folder/s_user_base.qvd]
+(qvd);
+
+Unqualify *;
+
+
+
