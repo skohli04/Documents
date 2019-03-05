@@ -1,0 +1,370 @@
+s_case
+========
+
+-- c_record_stats Record counts
+
+Select count(*)
+FROM siebel_base.c_record_stats
+Where table_name = 's_case'
+
+-- 463 Records Returned
+
+
+-- Total_count, Distinct_count and Unique_count validation - comparison
+
+Select count(*)
+FROM
+(Select 's_case' AS TABLE_NAME, A.LOAD_DATE, A.BUSINESS_DATE, A.Total_count, B.Distinct_count, C.Unique_count
+FROM
+(Select DATE(Load_date) as LOAD_DATE, DATE(last_upd) AS BUSINESS_DATE,count(row_id) AS Total_count
+FROM siebel_raw.s_case
+group by DATE(Load_date), DATE(last_upd)) A
+INNER JOIN
+(Select LOAD_DATE, BUSINESS_DATE, count(row_id) AS Distinct_count
+FROM 
+(Select ROW_ID, DATE(Load_date) as LOAD_DATE, DATE(last_upd) AS BUSINESS_DATE,
+rank() OVER (PARTITION by row_id, substr(last_upd,1,10) ORDER BY last_upd DESC) as Record_rank
+From siebel_raw.s_case RAW) AA
+WHERE Record_rank = 1
+GROUP BY LOAD_DATE, BUSINESS_DATE) B
+ON A.LOAD_DATE = B.LOAD_DATE
+AND A.BUSINESS_DATE = B.BUSINESS_DATE
+LEFT JOIN
+(Select CC.LOAD_DATE,CC.BUSINESS_DATE, count(CC.Unique_count_new) as Unique_count
+FROM
+(Select Row_id, DATE(Load_date) as LOAD_DATE, DATE(last_upd) AS BUSINESS_DATE, Count(Row_id) AS Unique_count_new
+From siebel_raw.s_case RAW
+Group by Row_id, DATE(Load_date), DATE(last_upd)) CC
+Where Unique_count_new = 1
+Group by CC.LOAD_DATE,CC.BUSINESS_DATE) C
+ON A.LOAD_DATE = C.LOAD_DATE
+AND A.BUSINESS_DATE = C.BUSINESS_DATE)SRC
+INNER JOIN 
+(Select *
+FROM siebel_base.c_record_stats
+Where table_name = 's_case') TRG
+ON SRC.LOAD_DATE = TRG.LOAD_DATE
+AND SRC.BUSINESS_DATE = TRG.BUSINESS_DATE
+AND SRC.TOTAL_COUNT = TRG.TOTAL_COUNT
+AND SRC.Distinct_count = TRG.Distinct_count
+AND SRC.Unique_count = TRG.Unique_count
+
+-- 463  Records Returned
+
+
+s_contact
+==============
+
+-- c_record_stats Record counts
+
+Select count(*)
+FROM siebel_base.c_record_stats
+Where table_name = 's_contact'
+
+-- 982 Records Returned
+
+-- Total_count, Distinct_count and Unique_count validation - comparison
+Select count(*)
+FROM
+(Select 's_contact' AS TABLE_NAME, A.LOAD_DATE, A.BUSINESS_DATE, A.Total_count, B.Distinct_count, C.Unique_count
+FROM
+(Select DATE(Load_date) as LOAD_DATE, DATE(last_upd) AS BUSINESS_DATE,count(row_id) AS Total_count
+FROM siebel_raw.s_contact
+group by DATE(Load_date), DATE(last_upd)) A
+INNER JOIN
+(Select LOAD_DATE, BUSINESS_DATE, count(row_id) AS Distinct_count
+FROM 
+(Select ROW_ID, DATE(Load_date) as LOAD_DATE, DATE(last_upd) AS BUSINESS_DATE,
+rank() OVER (PARTITION by row_id, substr(last_upd,1,10) ORDER BY last_upd DESC) as Record_rank
+From siebel_raw.s_contact RAW) AA
+WHERE Record_rank = 1
+GROUP BY LOAD_DATE, BUSINESS_DATE) B
+ON A.LOAD_DATE = B.LOAD_DATE
+AND A.BUSINESS_DATE = B.BUSINESS_DATE
+LEFT JOIN
+(Select CC.LOAD_DATE,CC.BUSINESS_DATE, count(CC.Unique_count_new) as Unique_count
+FROM
+(Select Row_id, DATE(Load_date) as LOAD_DATE, DATE(last_upd) AS BUSINESS_DATE, Count(Row_id) AS Unique_count_new
+From siebel_raw.s_contact RAW
+Group by Row_id, DATE(Load_date), DATE(last_upd)) CC
+Where Unique_count_new = 1
+Group by CC.LOAD_DATE,CC.BUSINESS_DATE) C
+ON A.LOAD_DATE = C.LOAD_DATE
+AND A.BUSINESS_DATE = C.BUSINESS_DATE)SRC
+INNER JOIN 
+(Select *
+FROM siebel_base.c_record_stats
+Where table_name = 's_contact') TRG
+ON SRC.LOAD_DATE = TRG.LOAD_DATE
+AND SRC.BUSINESS_DATE = TRG.BUSINESS_DATE
+AND SRC.TOTAL_COUNT = TRG.TOTAL_COUNT
+AND SRC.Distinct_count = TRG.Distinct_count
+AND SRC.Unique_count = TRG.Unique_count
+
+-- 982 Records Returned
+
+s_user
+==============
+
+-- c_record_stats Record counts
+
+Select count(*)
+FROM siebel_base.c_record_stats
+Where table_name = 's_user'
+
+-- 1103 Records Returned
+
+
+-- Total_count, Distinct_count and Unique_count validation - comparison
+
+Select count(*)
+FROM
+(Select 's_user' AS TABLE_NAME, A.LOAD_DATE, A.BUSINESS_DATE, A.Total_count, B.Distinct_count, C.Unique_count
+FROM
+(Select DATE(Load_date) as LOAD_DATE, DATE(last_upd) AS BUSINESS_DATE,count(row_id) AS Total_count
+FROM siebel_raw.s_user
+group by DATE(Load_date), DATE(last_upd)) A
+INNER JOIN
+(Select LOAD_DATE, BUSINESS_DATE, count(row_id) AS Distinct_count
+FROM 
+(Select ROW_ID, DATE(Load_date) as LOAD_DATE, DATE(last_upd) AS BUSINESS_DATE,
+rank() OVER (PARTITION by row_id, substr(last_upd,1,10) ORDER BY last_upd DESC) as Record_rank
+From siebel_raw.s_user RAW) AA
+WHERE Record_rank = 1
+GROUP BY LOAD_DATE, BUSINESS_DATE) B
+ON A.LOAD_DATE = B.LOAD_DATE
+AND A.BUSINESS_DATE = B.BUSINESS_DATE
+LEFT JOIN
+(Select CC.LOAD_DATE,CC.BUSINESS_DATE, count(CC.Unique_count_new) as Unique_count
+FROM
+(Select Row_id, DATE(Load_date) as LOAD_DATE, DATE(last_upd) AS BUSINESS_DATE, Count(Row_id) AS Unique_count_new
+From siebel_raw.s_user RAW
+Group by Row_id, DATE(Load_date), DATE(last_upd)) CC
+Where Unique_count_new = 1
+Group by CC.LOAD_DATE,CC.BUSINESS_DATE) C
+ON A.LOAD_DATE = C.LOAD_DATE
+AND A.BUSINESS_DATE = C.BUSINESS_DATE)SRC
+INNER JOIN 
+(Select *
+FROM siebel_base.c_record_stats
+Where table_name = 's_user') TRG
+ON SRC.LOAD_DATE = TRG.LOAD_DATE
+AND SRC.BUSINESS_DATE = TRG.BUSINESS_DATE
+AND SRC.TOTAL_COUNT = TRG.TOTAL_COUNT
+AND SRC.Distinct_count = TRG.Distinct_count
+AND SRC.Unique_count = TRG.Unique_count
+
+-- 1103 Records Returned
+
+s_postn
+==============
+
+-- c_record_stats Record counts
+
+Select count(*)
+FROM siebel_base.c_record_stats
+Where table_name = 's_postn'
+
+-- 435 Records Returned
+
+
+-- Total_count, Distinct_count and Unique_count validation - comparison
+
+Select count(*)
+FROM
+(Select 's_postn' AS TABLE_NAME, A.LOAD_DATE, A.BUSINESS_DATE, A.Total_count, B.Distinct_count, C.Unique_count
+FROM
+(Select DATE(Load_date) as LOAD_DATE, DATE(last_upd) AS BUSINESS_DATE,count(row_id) AS Total_count
+FROM siebel_raw.s_postn
+group by DATE(Load_date), DATE(last_upd)) A
+INNER JOIN
+(Select LOAD_DATE, BUSINESS_DATE, count(row_id) AS Distinct_count
+FROM 
+(Select ROW_ID, DATE(Load_date) as LOAD_DATE, DATE(last_upd) AS BUSINESS_DATE,
+rank() OVER (PARTITION by row_id, substr(last_upd,1,10) ORDER BY last_upd DESC) as Record_rank
+From siebel_raw.s_postn RAW) AA
+WHERE Record_rank = 1
+GROUP BY LOAD_DATE, BUSINESS_DATE) B
+ON A.LOAD_DATE = B.LOAD_DATE
+AND A.BUSINESS_DATE = B.BUSINESS_DATE
+LEFT JOIN
+(Select CC.LOAD_DATE,CC.BUSINESS_DATE, count(CC.Unique_count_new) as Unique_count
+FROM
+(Select Row_id, DATE(Load_date) as LOAD_DATE, DATE(last_upd) AS BUSINESS_DATE, Count(Row_id) AS Unique_count_new
+From siebel_raw.s_postn RAW
+Group by Row_id, DATE(Load_date), DATE(last_upd)) CC
+Where Unique_count_new = 1
+Group by CC.LOAD_DATE,CC.BUSINESS_DATE) C
+ON A.LOAD_DATE = C.LOAD_DATE
+AND A.BUSINESS_DATE = C.BUSINESS_DATE)SRC
+INNER JOIN 
+(Select *
+FROM siebel_base.c_record_stats
+Where table_name = 's_postn') TRG
+ON SRC.LOAD_DATE = TRG.LOAD_DATE
+AND SRC.BUSINESS_DATE = TRG.BUSINESS_DATE
+AND SRC.TOTAL_COUNT = TRG.TOTAL_COUNT
+AND SRC.Distinct_count = TRG.Distinct_count
+AND SRC.Unique_count = TRG.Unique_count
+
+-- 435 Records Returned
+
+s_org_ext
+==============
+
+-- c_record_stats Record counts
+
+Select count(*)
+FROM siebel_base.c_record_stats
+Where table_name = 's_org_ext'
+
+-- 481 Records Returned
+
+-- Total_count, Distinct_count and Unique_count validation - comparison
+
+Select count(*)
+FROM
+(Select 's_org_ext' AS TABLE_NAME, A.LOAD_DATE, A.BUSINESS_DATE, A.Total_count, B.Distinct_count, C.Unique_count
+FROM
+(Select DATE(Load_date) as LOAD_DATE, DATE(last_upd) AS BUSINESS_DATE,count(row_id) AS Total_count
+FROM siebel_raw.s_org_ext
+group by DATE(Load_date), DATE(last_upd)) A
+INNER JOIN
+(Select LOAD_DATE, BUSINESS_DATE, count(row_id) AS Distinct_count
+FROM 
+(Select ROW_ID, DATE(Load_date) as LOAD_DATE, DATE(last_upd) AS BUSINESS_DATE,
+rank() OVER (PARTITION by row_id, substr(last_upd,1,10) ORDER BY last_upd DESC) as Record_rank
+From siebel_raw.s_org_ext RAW) AA
+WHERE Record_rank = 1
+GROUP BY LOAD_DATE, BUSINESS_DATE) B
+ON A.LOAD_DATE = B.LOAD_DATE
+AND A.BUSINESS_DATE = B.BUSINESS_DATE
+LEFT JOIN
+(Select CC.LOAD_DATE,CC.BUSINESS_DATE, count(CC.Unique_count_new) as Unique_count
+FROM
+(Select Row_id, DATE(Load_date) as LOAD_DATE, DATE(last_upd) AS BUSINESS_DATE, Count(Row_id) AS Unique_count_new
+From siebel_raw.s_org_ext RAW
+Group by Row_id, DATE(Load_date), DATE(last_upd)) CC
+Where Unique_count_new = 1
+Group by CC.LOAD_DATE,CC.BUSINESS_DATE) C
+ON A.LOAD_DATE = C.LOAD_DATE
+AND A.BUSINESS_DATE = C.BUSINESS_DATE)SRC
+INNER JOIN 
+(Select *
+FROM siebel_base.c_record_stats
+Where table_name = 's_org_ext') TRG
+ON SRC.LOAD_DATE = TRG.LOAD_DATE
+AND SRC.BUSINESS_DATE = TRG.BUSINESS_DATE
+AND SRC.TOTAL_COUNT = TRG.TOTAL_COUNT
+AND SRC.Distinct_count = TRG.Distinct_count
+AND SRC.Unique_count = TRG.Unique_count
+
+-- 481 Records Returned
+
+
+s_contact_bu
+==============
+
+-- c_record_stats Record counts
+
+Select count(*)
+FROM siebel_base.c_record_stats
+Where table_name = 's_contact_bu'
+
+-- 1597 Records Returned
+
+-- Total_count, Distinct_count and Unique_count validation - comparison
+
+Select count(*)
+FROM
+(Select 's_contact_bu' AS TABLE_NAME, A.LOAD_DATE, A.BUSINESS_DATE, A.Total_count, B.Distinct_count, C.Unique_count
+FROM
+(Select DATE(Load_date) as LOAD_DATE, DATE(last_upd) AS BUSINESS_DATE,count(row_id) AS Total_count
+FROM siebel_raw.s_contact_bu
+group by DATE(Load_date), DATE(last_upd)) A
+INNER JOIN
+(Select LOAD_DATE, BUSINESS_DATE, count(row_id) AS Distinct_count
+FROM 
+(Select ROW_ID, DATE(Load_date) as LOAD_DATE, DATE(last_upd) AS BUSINESS_DATE,
+rank() OVER (PARTITION by row_id, substr(last_upd,1,10) ORDER BY last_upd DESC) as Record_rank
+From siebel_raw.s_contact_bu RAW) AA
+WHERE Record_rank = 1
+GROUP BY LOAD_DATE, BUSINESS_DATE) B
+ON A.LOAD_DATE = B.LOAD_DATE
+AND A.BUSINESS_DATE = B.BUSINESS_DATE
+LEFT JOIN
+(Select CC.LOAD_DATE,CC.BUSINESS_DATE, count(CC.Unique_count_new) as Unique_count
+FROM
+(Select Row_id, DATE(Load_date) as LOAD_DATE, DATE(last_upd) AS BUSINESS_DATE, Count(Row_id) AS Unique_count_new
+From siebel_raw.s_contact_bu RAW
+Group by Row_id, DATE(Load_date), DATE(last_upd)) CC
+Where Unique_count_new = 1
+Group by CC.LOAD_DATE,CC.BUSINESS_DATE) C
+ON A.LOAD_DATE = C.LOAD_DATE
+AND A.BUSINESS_DATE = C.BUSINESS_DATE)SRC
+INNER JOIN 
+(Select *
+FROM siebel_base.c_record_stats
+Where table_name = 's_contact_bu') TRG
+ON SRC.LOAD_DATE = TRG.LOAD_DATE
+AND SRC.BUSINESS_DATE = TRG.BUSINESS_DATE
+AND SRC.TOTAL_COUNT = TRG.TOTAL_COUNT
+AND SRC.Distinct_count = TRG.Distinct_count
+AND SRC.Unique_count = TRG.Unique_count
+
+-- 1597 Records Returned
+
+
+
+cx_intraday_s_srv_req
+==============
+
+-- c_record_stats Record counts
+
+Select count(*)
+FROM siebel_base.c_record_stats
+Where table_name = 'cx_intraday_s_srv_req'
+
+-- 737 Records Returned
+
+-- Total_count, Distinct_count and Unique_count validation - comparison
+
+Select count(*)
+FROM
+(Select 'cx_intraday_s_srv_req' AS TABLE_NAME, A.LOAD_DATE, A.BUSINESS_DATE, A.Total_count, B.Distinct_count, C.Unique_count
+FROM
+(Select DATE(Load_date) as LOAD_DATE, DATE(last_upd) AS BUSINESS_DATE,count(row_id) AS Total_count
+FROM siebel_raw.cx_intraday_s_srv_req
+group by DATE(Load_date), DATE(last_upd)) A
+INNER JOIN
+(Select LOAD_DATE, BUSINESS_DATE, count(CX_ROW_ID) AS Distinct_count
+FROM 
+(Select CX_ROW_ID, DATE(Load_date) as LOAD_DATE, DATE(last_upd) AS BUSINESS_DATE,
+rank() OVER (PARTITION by CX_ROW_ID, substr(last_upd,1,10) ORDER BY last_upd DESC) as Record_rank
+From siebel_raw.cx_intraday_s_srv_req RAW) AA
+WHERE Record_rank = 1
+GROUP BY LOAD_DATE, BUSINESS_DATE) B
+ON A.LOAD_DATE = B.LOAD_DATE
+AND A.BUSINESS_DATE = B.BUSINESS_DATE
+LEFT JOIN
+(Select CC.LOAD_DATE,CC.BUSINESS_DATE, count(CC.Unique_count_new) as Unique_count
+FROM
+(Select CX_ROW_ID, DATE(Load_date) as LOAD_DATE, DATE(last_upd) AS BUSINESS_DATE, Count(CX_ROW_ID) AS Unique_count_new
+From siebel_raw.cx_intraday_s_srv_req RAW
+Group by CX_ROW_ID, DATE(Load_date), DATE(last_upd)) CC
+Where Unique_count_new = 1
+Group by CC.LOAD_DATE,CC.BUSINESS_DATE) C
+ON A.LOAD_DATE = C.LOAD_DATE
+AND A.BUSINESS_DATE = C.BUSINESS_DATE)SRC
+INNER JOIN 
+(Select *
+FROM siebel_base.c_record_stats
+Where table_name = 'cx_intraday_s_srv_req') TRG
+ON SRC.LOAD_DATE = TRG.LOAD_DATE
+AND SRC.BUSINESS_DATE = TRG.BUSINESS_DATE
+AND SRC.TOTAL_COUNT = TRG.TOTAL_COUNT
+AND SRC.Distinct_count = TRG.Distinct_count
+AND SRC.Unique_count = TRG.Unique_count
+
+-- 737 Records Returned
+
