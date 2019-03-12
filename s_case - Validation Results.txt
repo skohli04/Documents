@@ -6,11 +6,11 @@
 
 Select count(*) from siebel_base.s_case;
 
--- 57,183
+-- 393,175
 
 Select count(*) from siebel_raw.s_case;
 
--- 58,504
+-- 426,928
 
 -- Record Differences
 =======================
@@ -20,9 +20,11 @@ Select count(*) from siebel_raw.s_case;
 Select *
 From siebel_raw.s_case RAW
 WHERE  NOT EXISTS (Select * from siebel_base.s_case BASE 
-WHERE RAW.row_wid = BASE.row_wid);
+WHERE RAW.row_wid = BASE.row_wid
+AND substr(RAW.last_upd,1,10) = substr(BASE.last_upd,1,10)
+AND RAW.LOAD_DATE = BASE.LOAD_DATE);
 
--- 1,321 Records
+-- 7,360 Records
 
 -- BASE -> RAW
 
@@ -53,14 +55,18 @@ WHERE SOURCE.row_wid = BASE.row_wid);
 
 -- Matching Records
 
-Select *
+Select count(*)
 FROM
-(Select RAW.* , rank() OVER (PARTITION by row_id, substr(last_upd,1,10) ORDER BY last_upd DESC) as Record_rank
+(Select RAW.* , row_number() OVER (PARTITION by row_id, Load_date,substr(last_upd,1,10) ORDER BY last_upd DESC) as Record_rank
 From siebel_raw.s_case RAW
 ) SOURCE
 WHERE Record_rank = 1
 AND EXISTS (Select BASE.*,'1' AS Rank from siebel_base.s_case BASE 
-WHERE SOURCE.row_wid = BASE.row_wid);
+WHERE SOURCE.row_id = BASE.row_id
+AND substr(SOURCE.last_upd,1,10) = substr(BASE.last_upd,1,10)
+AND SOURCE.LOAD_DATE = BASE.LOAD_DATE);
 
 
--- 57,183 Records Returned
+-- -- 393,175 Records Returned
+
+
