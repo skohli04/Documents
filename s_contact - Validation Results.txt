@@ -6,11 +6,12 @@
 
 Select count(*) from siebel_base.s_contact;
 
--- 80,130
+
+-- 224,783
 
 Select count(*) from siebel_raw.s_contact;
 
--- 80,133
+-- 231,685
 
 -- Record Differences
 =======================
@@ -22,7 +23,7 @@ From siebel_raw.s_contact RAW
 WHERE  NOT EXISTS (Select * from siebel_base.s_contact BASE 
 WHERE RAW.row_wid = BASE.row_wid);
 
--- 3 Records
+-- 68 Records
 
 -- BASE -> RAW
 
@@ -41,26 +42,30 @@ WHERE RAW.row_wid = BASE.row_wid);
 
 Select *
 FROM
-(Select RAW.* , rank() OVER (PARTITION by row_id, substr(last_upd,1,10) ORDER BY last_upd DESC) as Record_rank
+(Select RAW.* , row_number() OVER (PARTITION by row_id, load_date,substr(last_upd,1,10) ORDER BY last_upd DESC) as Record_rank
 From siebel_raw.s_contact RAW
 ) SOURCE
 WHERE Record_rank = 1
 AND NOT EXISTS (Select BASE.*,'1' AS Rank from siebel_base.s_contact BASE 
-WHERE SOURCE.row_wid = BASE.row_wid);
+WHERE SOURCE.row_id = BASE.row_id
+AND substr(SOURCE.last_upd,1,10) = substr(BASE.last_upd,1,10)
+AND SOURCE.LOAD_DATE=BASE.LOAD_DATE);
 
 
 -- 0 Records Returned
 
 -- Matching Records
 
-Select *
+Select count(*)
 FROM
-(Select RAW.* , rank() OVER (PARTITION by row_id, substr(last_upd,1,10) ORDER BY last_upd DESC) as Record_rank
+(Select RAW.* , row_number() OVER (PARTITION by row_id, Load_date,substr(last_upd,1,10) ORDER BY last_upd DESC) as Record_rank
 From siebel_raw.s_contact RAW
 ) SOURCE
 WHERE Record_rank = 1
 AND EXISTS (Select BASE.*,'1' AS Rank from siebel_base.s_contact BASE 
-WHERE SOURCE.row_wid = BASE.row_wid);
+WHERE SOURCE.row_id = BASE.row_id
+AND substr(SOURCE.last_upd,1,10) = substr(BASE.last_upd,1,10)
+AND SOURCE.LOAD_DATE = BASE.LOAD_DATE);
 
 
--- 80,130 Records Returned
+-- 224,783
