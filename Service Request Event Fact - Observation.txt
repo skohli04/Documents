@@ -1,0 +1,39 @@
+Obsetrvations - 586
+==============
+
+1. Below listed data Items not available in Fact table (Though part of Sprint 3 User Stories and Data Definition)
+	1.1 Service Request SLA
+	1.2 Organisation Hierarchy Caseworker
+	1.3 Client Role
+	1.4 Client Post Code
+	1.5 Client Parliamentary Constituency 
+	1.6 Client Local Authority
+	1.7 Client Address Type
+2. Below listed Data Items are NULL in Fact
+	2.1 Service Request Status Start Date
+	2.2 Service Request Status End Date
+	2.3 Service Request Sub Status Start Date
+	2.4 Service Request Sub Status end Date
+	2.5 Master Case Number
+	2.6 Client SCIN
+3. Logic to create the indicators not as per Data Definition, Logic applied as below (Work on Hand logic should include End Date is not NULL)
+
+-- Clearance
+case when (upper(trim(service_request_status)) ='CLOSED' 
+and service_request_due_date is not null 
+and service_request_end_date is not null) 
+then 1 else 0 
+end  as sr_event_clearance_ind        ,
+
+-- Intake
+case when (service_request_version_number = 0 
+and service_request_due_date is not null 
+and to_date(service_request_created_date) = to_date(service_request_start_date)) 
+then 1 else 0 
+end as sr_event_intake_ind       ,
+
+-- Work on Hand
+case when (upper(trim(service_request_status)) !='CLOSED' 
+and service_request_due_date is  null ) 
+then 1 else 0 
+end  as sr_event_work_on_hand_ind 
