@@ -1,0 +1,54 @@
+-- count of Service Request Number
+
+Select count(*)
+FROM cap_mi_test.v_service_request_dim
+
+
+
+
+-- Distrinct count of Service Request Number
+
+Select count(distinct sr_number)
+FROM cap_mi_test.service_request_event_fact
+
+
+
+
+-- Count of Service Request Number
+
+Select count(*)
+FROM cap_mi_test.service_request_event_fact
+
+
+
+
+-- Count of Intake (Ins) Indicator
+
+Select sr_event_intake_ind, count(*)
+FROM cap_mi_test.service_request_event_fact
+Group by sr_event_intake_ind;
+
+
+
+
+
+-- Count of Clearance (Outs) Indicator
+
+Select sr_event_clearance_ind, count(*)
+FROM cap_mi_test.service_request_event_fact
+Group by sr_event_clearance_ind;
+
+
+
+
+
+
+-- Count of Work on Hand (Woh) Indicator
+
+Select sr_event_work_on_hand_ind, count(*)
+FROM cap_mi_test.service_request_event_fact
+Group by sr_event_work_on_hand_ind;
+
+
+
+
