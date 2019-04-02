@@ -1,0 +1,128 @@
+Service Request Clearance Within SLA
+====================================
+
+Select Service_request_clearance_within_SLA_Ind,count(*)
+FROM
+(Select *,
+CASE WHEN sr_event_Clearance_ind = '1' and sr_end_date <= sr_due_date THEN '1' ELSE '0' END AS Service_request_clearance_within_SLA_Ind
+fROM cap_mi_test.service_request_event_fact) A
+GROUP BY Service_request_clearance_within_SLA_Ind
+
+
+
+Service Request Clearance Outside SLA
+====================================
+
+Select Service_request_clearance_outside_SLA_Ind,count(*)
+FROM
+(Select *,
+CASE WHEN sr_event_Clearance_ind = '1' and sr_end_date > sr_due_date THEN '1' ELSE '0' END AS Service_request_clearance_outside_SLA_Ind
+fROM cap_mi_test.service_request_event_fact) A
+GROUP BY Service_request_clearance_outside_SLA_Ind
+
+
+
+Service Request WoH within SLA
+====================================
+
+Select Service_request_WoH_Within_SLA_Ind,count(*)
+FROM
+(Select *,
+CASE WHEN sr_event_work_on_hand_ind = '1' and sr_due_date > load_date THEN '1' ELSE '0' END AS Service_request_WoH_Within_SLA_Ind
+fROM cap_mi_test.service_request_event_fact) A
+GROUP BY Service_request_WoH_Within_SLA_Ind
+
+
+
+
+
+Service Request WoH Outside SLA
+====================================
+
+Select Service_request_WoH_Outside_SLA_Ind,count(*)
+FROM
+(Select *,
+CASE WHEN sr_event_work_on_hand_ind = '1' and sr_due_date < load_date THEN '1' ELSE '0' END AS Service_request_WoH_Outside_SLA_Ind
+fROM cap_mi_test.service_request_event_fact) A
+GROUP BY Service_request_WoH_Outside_SLA_Ind
+
+
+
+Service Request Clearance Time Taken
+====================================
+
+
+Select *,  
+CASE WHEN sr_event_clearance_ind = '1' THEN datediff(TO_DATE(sr_end_date), TO_DATE(sr_start_date)) ELSE 0 END AS TIME_TAKEN
+fROM cap_mi_test.service_request_event_fact
+Limit 10
+
+
+Select CLEARANCE_TIME_TAKEN, count(*)
+FROM
+(Select *,  
+CASE WHEN sr_event_clearance_ind = '1' THEN datediff(TO_DATE(sr_end_date), TO_DATE(sr_start_date)) ELSE 0 END AS CLEARANCE_TIME_TAKEN
+fROM cap_mi_test.service_request_event_fact
+) A
+GROUP BY CLEARANCE_TIME_TAKEN
+Order by CLEARANCE_TIME_TAKEN
+
+
+
+
+Service Request Clearance Age Band
+====================================
+
+
+???????
+
+
+Service Request Average Clearance Days
+========================================
+
+???????
+
+
+Service Request Throughput WoH Age
+========================================
+
+
+Select *,  
+CASE WHEN sr_event_work_on_hand_ind = '1' THEN datediff(TO_DATE(load_date), TO_DATE(sr_start_date)) ELSE 0 END AS TIME_TAKEN
+fROM cap_mi_test.service_request_event_fact
+Limit 10
+
+Select WoH_TIME_TAKEN,count(*)
+FROM
+(Select *,  
+CASE WHEN sr_event_work_on_hand_ind = '1' THEN datediff(TO_DATE(from_unixtime(unix_timestamp())), TO_DATE(sr_start_date)) ELSE 0 END AS WoH_TIME_TAKEN
+fROM cap_mi_test.service_request_event_fact
+) A
+GROUP BY WoH_TIME_TAKEN
+ORDER BY WoH_TIME_TAKEN
+
+
+Service Request Throughput WoH Age Band
+========================================
+
+
+?????
+
+
+Service Request Throughput WoH Average Age
+==========================================
+
+
+?????
+
+Service Request Throughput Longest Clearance Time
+==================================================
+
+
+?????
+
+Service Request Throughput Oldest WoH
+======================================
+
+
+?????
