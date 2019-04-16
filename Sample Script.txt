@@ -1,0 +1,88 @@
+Band
+======
+
+-- total records populated in SR Fact table
+
+Select count(band)
+FROM  cap_mi_test.service_request_event_fact_v2
+Where business_date >= '2018-12-01'
+and business_date <= '2018-12-31'
+
+-- <Count>
+
+-- Count of each band populated in SR Fact table
+
+Select band,count(*)
+FROM  cap_mi_test.service_request_event_fact_v2
+Where business_date >= '2018-12-01'
+and business_date <= '2018-12-31'
+group by Band
+
+-- <Count>
+
+-- Count of Unmatched Band records between SR Fact record values and derived values
+
+Select 
+count(*)
+FROM
+(Select sr_number, Business_date,SLA,sr_cal_age, max(Band_calc) as Band_SRC
+FROM (Select sr_number,Business_date, SLA, sr_cal_age,A.band,B.Band AS AGE_BAND,
+Case when CAST(CAST(regexp_replace(TRIM(A.SLA),'\\.','') AS INT)/10 AS INT) = CAST(B.Total_SLA AS INT) and Cast(sr_cal_age as INT) >= CAST(start_day as INT) and cast(sr_cal_age as INT) < CAST(end_day AS INT) THEN B.band Else '0' END AS BAND_CALC
+, start_day, End_day
+FROM (Select *
+FROM  cap_mi_test.service_request_event_fact_v2 
+Where business_date >= '2018-12-01'
+and business_date <= '2018-12-31') A
+Inner join 
+(Select * FROM cap_mi_test.age_band) B
+ON CAST(CAST(regexp_replace(TRIM(A.SLA),'\\.','') AS INT)/10 AS INT) = CAST(B.Total_SLA AS INT) ) AA
+Where 
+Band_calc <> '0'
+group by sr_number, Business_date,SLA,sr_cal_age ) SRC
+INNER JOIN
+(Select *
+FROM  cap_mi_test.service_request_event_fact_v2 
+Where business_date >= '2018-12-01'
+and business_date <= '2018-12-31') Tgt
+ON Src.sr_number= Tgt.sr_number
+AND src.business_date=Tgt.business_date
+AND Src.SLA = Tgt.SLA
+AND Src.sr_cal_age = Tgt.sr_cal_age
+and Band <> Band_SRC
+
+-- <count Unmatched records)
+
+-- Count of Matching Band records between SR Fact record values and derived values
+
+Select 
+--Src.sr_number, Src.business_date, Tgt.SLA, Tgt.sr_cal_age,Tgt.Band, Src.Band_SRC
+count(*)
+FROM
+(Select sr_number, Business_date,SLA,sr_cal_age, max(Band_calc) as Band_SRC
+--Select sr_number, business_date, SLA,sr_cal_age, band, AGE_BAND, Band_calc, start_day,End_day
+FROM (Select sr_number,Business_date, SLA, sr_cal_age,A.band,B.Band AS AGE_BAND,
+Case when CAST(CAST(regexp_replace(TRIM(A.SLA),'\\.','') AS INT)/10 AS INT) = CAST(B.Total_SLA AS INT) and Cast(sr_cal_age as INT) >= CAST(start_day as INT) and cast(sr_cal_age as INT) < CAST(end_day AS INT) THEN B.band Else '0' END AS BAND_CALC
+, start_day, End_day
+FROM (Select *
+FROM  cap_mi_test.service_request_event_fact_v2 
+Where business_date >= '2018-12-01'
+and business_date <= '2018-12-31') A
+Inner join 
+(Select * FROM cap_mi_test.age_band) B
+ON CAST(CAST(regexp_replace(TRIM(A.SLA),'\\.','') AS INT)/10 AS INT) = CAST(B.Total_SLA AS INT) ) AA
+Where 
+Band_calc <> '0'
+--and sr_number = '1-2539726528'
+group by sr_number, Business_date,SLA,sr_cal_age ) SRC
+INNER JOIN
+(Select *
+FROM  cap_mi_test.service_request_event_fact_v2 
+Where business_date >= '2018-12-01'
+and business_date <= '2018-12-31') Tgt
+ON Src.sr_number= Tgt.sr_number
+AND src.business_date=Tgt.business_date
+AND Src.SLA = Tgt.SLA
+AND Src.sr_cal_age = Tgt.sr_cal_age
+and Band = Band_SRC
+
+-- <Count of Matching Records>
