@@ -1,0 +1,760 @@
+
+Business_date
+==================
+
+-- Total number of records in Source
+
+Select count(*)
+FROM cap_mi_test.v_service_request_dim
+Where business_date >= '2018-12-05'
+and business_date <= '2018-12-31'
+
+-- 382526
+
+-- Total number of records in SR Fact table
+ 
+Select count(*)
+FROM cap_mi_test.service_request_event_fact_v2 
+Where business_date >= '2018-12-05'
+and business_date <= '2018-12-31'
+
+-- 7643493
+
+-- Total number of records per Business date in Source (Date range From 05/12/2018 - 08/12/2018)
+
+Select business_date,count(sr_number)
+FROM cap_mi_test.v_service_request_dim
+Where business_date >= '2018-12-05'
+and business_date <= '2018-12-08'
+group by v_service_request_dim.business_date
+Order by v_service_request_dim.business_date
+
+ 	business_date	count(sr_number)
+1	2018-12-05	    3626
+2	2018-12-06	    267751
+3	2018-12-07	    4986
+4	2018-12-08	    2786
+
+-- Total number of records per Business date in Source (Date range From 05/12/2018 - 08/12/2018)
+
+Select business_date, count(sr_number)
+FROM cap_mi_test.service_request_event_fact_v2
+Where business_date >= '2018-12-05'
+and business_date <= '2018-12-08'
+group by business_date
+Order by business_date
+
+ 	business_date	count(sr_number)
+1	2018-12-05	9156
+2	2018-12-06	273595
+3	2018-12-07	275312
+4	2018-12-08	274621
+
+-- Logic to compare Results between Source and SR Fact table (Business Date 2018-12-06
+
+Select count(*)
+FROM 
+(Select sr_number
+FROM
+(Select  sr_number, row_number() OVER (PARTITION by sr_number ORDER BY sr_updated_date DESC) as Record_rank
+FROM cap_mi_test.service_request_event_fact_v2
+Where sr_event_clearance_ind != '1'
+--AND (sr_event_intake_ind = '1' or sr_event_work_on_hand_ind = '1')
+AND business_date = '2018-12-05') AA
+Where Record_rank = 1) A
+LEFT JOIN
+(Select sr_number
+FROM 
+(Select  sr_number, row_number() OVER (PARTITION by sr_number ORDER BY sr_updated_date DESC) as Record_rank
+FROM cap_mi_test.v_service_request_dim
+--Limit 10
+Where business_date = '2018-12-06') BB
+Where Record_rank = 1) B
+ON A.sr_number = B.sr_number
+Where B.sr_number is NULL
+Union All
+Select count(*)
+FROM cap_mi_test.v_service_request_dim
+--Limit 10
+Where business_date = '2018-12-06'
+
+1   5846
+2	267751
+
+Select business_date, count(sr_number)
+FROM cap_mi_test.service_request_event_fact_v2
+--Limit 10
+Where business_date = '2018-12-06'
+Group by business_date
+
+ 	business_date	count(sr_number)
+1	2018-12-06	    273595
+
+
+
+SR Throughput Woh Witing SLA
+===============================
+
+-- Count of Woh within SLA per business date in SR Fact table
+
+Select business_date, sr_event_woh_within_sla_ind, count(sr_number)
+FROM cap_mi_test.service_request_event_fact_v2
+Where business_date >= '2018-12-05'
+and business_date <= '2018-12-08'
+group by business_date,sr_event_woh_within_sla_ind
+Order by business_date,sr_event_woh_within_sla_ind
+
+ 	business_date	sr_event_woh_within_sla_ind	count(sr_number)
+1	2018-12-05	0	    3387
+2	2018-12-05	1	    5763
+3	2018-12-05	NULL	6
+4	2018-12-06	0	    264061
+5	2018-12-06	1	    9307
+6	2018-12-06	NULL	227
+7	2018-12-07	0	    265168
+8	2018-12-07	1	    9919
+9	2018-12-07	NULL	225
+10	2018-12-08	0	    264689
+11	2018-12-08	1	    9706
+12	2018-12-08	NULL	226
+
+
+-- Comparison of Woh within SLA between SR Fact table and derived values
+
+Select AA.*
+FROM
+(Select sr_number,Business_date,sr_start_Date,SLA,SLA_Due_DATE,sr_event_woh_within_sla_ind,
+CASE WHEN SLA_Due_DATE >= Business_date and sr_event_work_on_hand_ind = '1' THEN '1' ELSE '0' END AS sr_event_woh_within_sla_ind_SRC
+FROM
+(Select sr_number,Business_date,sr_start_Date,SLA,sr_event_work_on_hand_ind,sr_event_woh_within_sla_ind,DATE_ADD(TO_DATE(sr_start_date),CAST(CAST(regexp_replace(TRIM(SLA),'\\.','') AS INT)/10 AS INT)) AS SLA_Due_DATE
+FROM  cap_mi_test.service_request_event_fact_v2) A
+) AA
+Where sr_event_woh_within_sla_ind <> sr_event_woh_within_sla_ind_SRC
+
+-- No Records Returned
+
+
+Select business_date,sr_event_woh_within_sla_ind_SRC,count(*)
+FROM
+(Select sr_number,Business_date,sr_start_Date,SLA,SLA_Due_DATE,sr_event_woh_within_sla_ind,
+CASE WHEN SLA_Due_DATE >= Business_date and sr_event_work_on_hand_ind = '1' THEN '1' ELSE '0' END AS sr_event_woh_within_sla_ind_SRC
+FROM
+(Select sr_number,Business_date,sr_start_Date,SLA,sr_event_work_on_hand_ind,sr_event_woh_within_sla_ind,DATE_ADD(TO_DATE(sr_start_date),CAST(CAST(regexp_replace(TRIM(SLA),'\\.','') AS INT)/10 AS INT)) AS SLA_Due_DATE
+FROM  cap_mi_test.service_request_event_fact_v2
+Where business_date >= '2018-12-05'
+and business_date <= '2018-12-08') A
+) AA
+Group by business_date,sr_event_woh_within_sla_ind_SRC
+Order by business_date,sr_event_woh_within_sla_ind_SRC
+
+ 	business_date	sr_event_woh_within_sla_ind_src	count(*)
+1	2018-12-05	0	3393
+2	2018-12-05	1	5763
+3	2018-12-06	0	264288
+4	2018-12-06	1	9307
+5	2018-12-07	0	265393
+6	2018-12-07	1	9919
+7	2018-12-08	0	264915
+8	2018-12-08	1	9706
+
+
+
+
+SR Throughput Woh Outside SLA
+===============================
+
+-- Count of Woh outside SLA per business date in SR Fact table
+
+Select business_date, sr_event_woh_outside_sla_ind, count(sr_number)
+FROM cap_mi_test.service_request_event_fact_v2
+--Limit 10
+Where business_date >= '2018-12-05'
+and business_date <= '2018-12-08'
+group by business_date,sr_event_woh_outside_sla_ind
+Order by business_date,sr_event_woh_outside_sla_ind
+
+business_date	sr_event_woh_outside_sla_ind	count(sr_number)
+ 	business_date	sr_event_woh_outside_sla_ind	count(sr_number)
+1	2018-12-05	0	6041
+2	2018-12-05	1	3109
+3	2018-12-05	NULL	6
+4	2018-12-06	0	9685
+5	2018-12-06	1	263683
+6	2018-12-06	NULL	227
+7	2018-12-07	0	10319
+8	2018-12-07	1	264768
+9	2018-12-07	NULL	225
+10	2018-12-08	0	9897
+11	2018-12-08	1	264498
+12	2018-12-08	NULL	226
+
+
+-- Comparison of Woh within SLA between SR Fact table and derived values
+
+Select count(*)
+FROM
+(Select sr_number,Business_date,sr_start_Date,SLA,SLA_Due_DATE,sr_event_woh_outside_sla_ind,
+CASE WHEN SLA_Due_DATE < Business_date and sr_event_work_on_hand_ind = '1' THEN '1' ELSE '0' END AS sr_event_woh_outside_sla_ind_SRC
+FROM
+(Select sr_number,Business_date,sr_start_Date,SLA,sr_event_work_on_hand_ind,sr_event_woh_outside_sla_ind,DATE_ADD(TO_DATE(sr_start_date),CAST(CAST(regexp_replace(TRIM(SLA),'\\.','') AS INT)/10 AS INT)) AS SLA_Due_DATE
+FROM  cap_mi_test.service_request_event_fact_v2
+Where business_date >= '2018-12-01'
+and business_date <= '2018-12-31'
+) A
+) AA
+Where sr_event_woh_outside_sla_ind <> sr_event_woh_outside_sla_ind_SRC
+
+-- 0 Records Returned
+
+
+Select business_date,sr_event_woh_outside_sla_ind_SRC,count(*)
+FROM
+(Select sr_number,Business_date,sr_start_Date,SLA,SLA_Due_DATE,sr_event_woh_outside_sla_ind,
+CASE WHEN SLA_Due_DATE < Business_date and sr_event_work_on_hand_ind = '1' THEN '1' ELSE '0' END AS sr_event_woh_outside_sla_ind_SRC
+FROM
+(Select sr_number,Business_date,sr_start_Date,SLA,sr_event_work_on_hand_ind,sr_event_woh_outside_sla_ind,DATE_ADD(TO_DATE(sr_start_date),CAST(CAST(regexp_replace(TRIM(SLA),'\\.','') AS INT)/10 AS INT)) AS SLA_Due_DATE
+FROM  cap_mi_test.service_request_event_fact_v2
+Where business_date >= '2018-12-05'
+and business_date <= '2018-12-08') A
+) AA
+Group by business_date,sr_event_woh_outside_sla_ind_SRC
+Order by business_date,sr_event_woh_outside_sla_ind_SRC
+
+ 	business_date	sr_event_woh_outside_sla_ind_src	count(*)
+1	2018-12-05	0	6047
+2	2018-12-05	1	3109
+3	2018-12-06	0	9912
+4	2018-12-06	1	263683
+5	2018-12-07	0	10544
+6	2018-12-07	1	264768
+7	2018-12-08	0	10123
+8	2018-12-08	1	264498 
+ 
+
+sr_cal_age
+===========
+
+-- Total Count of Calander age populated in SR Fact table
+
+Select count(sr_cal_age)
+FROM  cap_mi_test.service_request_event_fact_v2
+Where business_date >= '2018-12-01'
+and business_date <= '2018-12-31'   
+
+-- 7669307 Records Returned
+
+
+-- Comparison of Calander age populated in SR Fact table and derived values
+
+Select A.*
+FROM
+(Select sr_number, business_date,sr_start_date,sr_end_Date,sr_event_work_on_hand_ind, sr_event_clearance_ind, sr_cal_age,
+CASE WHEN sr_event_clearance_ind = '1' THEN datediff(TO_DATE(sr_end_date), TO_DATE(sr_start_date))
+     WHEN sr_event_work_on_hand_ind = '1'THEN datediff(TO_DATE(Business_Date), TO_DATE(sr_start_date))
+     ELSE 0
+     END AS sr_cal_age_SRC
+FROM  cap_mi_test.service_request_event_fact_v2
+Where business_date >= '2018-12-01'
+and business_date <= '2018-12-31'   
+) A
+Where sr_cal_age <> CAST(sr_cal_age_SRC AS STRING)
+
+
+-- No Records Returned
+
+
+Select count(*)
+FROM
+(Select sr_number, business_date,sr_start_date,sr_end_Date,sr_event_work_on_hand_ind, sr_event_clearance_ind, sr_cal_age,
+CASE WHEN sr_event_clearance_ind = '1' THEN datediff(TO_DATE(sr_end_date), TO_DATE(sr_start_date))
+     WHEN sr_event_work_on_hand_ind = '1'THEN datediff(TO_DATE(Business_Date), TO_DATE(sr_start_date))
+     ELSE 0
+     END AS sr_cal_age_SRC
+FROM  cap_mi_test.service_request_event_fact_v2
+Where business_date >= '2018-12-01'
+and business_date <= '2018-12-31'   
+) A
+Where sr_cal_age = CAST(sr_cal_age_SRC AS STRING)
+
+-- 7669307 Records Returned
+
+
+
+sr_wor_age
+===========
+
+-- Calculate sr_wor_age based on below scenarios
+    1)- Sr starts on Friday and Ends(Or business_date for Woh) on Saturday (Expected Result '0', Actual Result '0')
+
+Select A.* --Scenario 1
+FROM
+(Select sla,sr_number, business_date,sr_start_date,sr_end_Date,sr_event_work_on_hand_ind, sr_event_clearance_ind, sr_cal_age, sr_wor_age
+FROM  cap_mi_test.service_request_event_fact_v2
+Where TO_DATE(sr_start_date) = '2018-12-28'
+and business_date >= '2018-12-29'
+and business_date <= '2018-12-31'     
+) A
+Where sr_wor_age  >='0'
+and sr_wor_age <= '5'
+
+    
+	2)- Sr starts on Friday and Ends(Or business_date for Woh) on Sunday (Expected Result '0', Actual Result '0')
+	
+Select A.* --Scenario 1
+FROM
+(Select sla,sr_number, business_date,sr_start_date,sr_end_Date,sr_event_work_on_hand_ind, sr_event_clearance_ind, sr_cal_age, sr_wor_age
+FROM  cap_mi_test.service_request_event_fact_v2
+Where TO_DATE(sr_start_date) = '2018-12-28'
+and business_date >= '2018-12-29'
+and business_date <= '2018-12-31'     
+) A
+Where sr_wor_age  >='0'
+and sr_wor_age <= '5'
+and sr_cal_age = '2' -- Scenario 2 
+
+
+    3)- Sr starts on Friday and Ends(Or business_date for Woh) on Monday (Expected Result '1', Actual Result '0') - Failed
+
+Select A.* --Scenario 1
+FROM
+(Select sla,sr_number, business_date,sr_start_date,sr_end_Date,sr_event_work_on_hand_ind, sr_event_clearance_ind, sr_cal_age, sr_wor_age
+FROM  cap_mi_test.service_request_event_fact_v2
+Where TO_DATE(sr_start_date) = '2018-12-28'
+and business_date >= '2018-12-29'
+and business_date <= '2018-12-31'     
+) A
+Where sr_wor_age  >='0'
+and sr_wor_age <= '5'
+and sr_cal_age = '3' -- Scenario 3 
+
+
+    4)- Sr starts on Saturday and Ends(Or business_date for Woh) on Sunday (Expected Result '0', Actual Result '0')
+
+
+Select A.* --Scenario 1
+FROM
+(Select sla,sr_number, business_date,sr_start_date,sr_end_Date,sr_event_work_on_hand_ind, sr_event_clearance_ind, sr_cal_age, sr_wor_age
+FROM  cap_mi_test.service_request_event_fact_v2
+Where TO_DATE(sr_start_date) = '2018-12-29'
+and business_date >= '2018-12-30'
+and business_date <= '2018-12-31'     
+) A
+Where sr_wor_age  >='0'
+and sr_wor_age <= '5'
+and sr_cal_age = '1' -- Scenario 4 
+
+
+    5)- Sr starts on Sunday and Ends(Or business_date for Woh) on Monday (Expected Result '1', Actual Result '1')
+
+Select A.* --Scenario 1
+FROM
+(Select sla,sr_number, business_date,sr_start_date,sr_end_Date,sr_event_work_on_hand_ind, sr_event_clearance_ind, sr_cal_age, sr_wor_age
+FROM  cap_mi_test.service_request_event_fact_v2
+Where TO_DATE(sr_start_date) = '2018-12-30'
+and business_date >= '2018-12-31'
+and business_date <= '2018-12-31'     
+) A
+Where sr_wor_age  >='0'
+and sr_wor_age <= '5'
+and sr_cal_age = '1' -- Scenario 4 
+
+
+	6)- Sr starts on Monday and Ends(Or business_date for Woh) on Friday(Including one Bank holidays) -  (Expected Result '3', Actual Result '2')
+
+Select A.* --Scenario 1
+FROM
+(Select sla,sr_number, business_date,sr_start_date,sr_end_Date,sr_event_work_on_hand_ind, sr_event_clearance_ind, sr_cal_age, sr_wor_age
+FROM  cap_mi_test.service_request_event_fact_v2
+Where TO_DATE(sr_start_date) = '2018-12-31'
+and business_date >= '2019-01-01'
+--and business_date <= '2019-12-31'     
+) A
+Where sr_wor_age  >='0'
+and sr_wor_age <= '5'
+and sr_cal_age = '4' -- Scenario 6 
+
+
+    7)- Sr starts on Monday and Ends(Or business_date for Woh) on Monday(Including one Bank holiday and a Weekend) -  (Expected Result '4', Actual Result '3')
+
+    
+Select A.* --Scenario 1
+FROM
+(Select sla,sr_number, business_date,sr_start_date,sr_end_Date,sr_event_work_on_hand_ind, sr_event_clearance_ind, sr_cal_age, sr_wor_age
+FROM  cap_mi_test.service_request_event_fact_v2
+Where TO_DATE(sr_start_date) = '2018-12-31'
+and business_date >= '2019-01-01'
+--and business_date <= '2019-12-31'     
+) A
+Where sr_wor_age  >='0'
+and sr_wor_age <= '5'
+and sr_cal_age = '7' -- Scenario 7 
+
+    8)- Sr starts on Monday and Ends(Or business_date for Woh) on Monday (Without weekend and Bank Holiday) -  (Expected Result '4', Actual Result '3')
+
+
+Select A.* --Scenario 1
+FROM
+(Select sla,sr_number, business_date,sr_start_date,sr_end_Date,sr_event_work_on_hand_ind, sr_event_clearance_ind, sr_cal_age, sr_wor_age
+FROM  cap_mi_test.service_request_event_fact_v2
+Where TO_DATE(sr_start_date) = '2019-01-07'
+and business_date >= '2019-01-08'
+--and business_date <= '2019-12-31'     
+) A
+Where sr_wor_age  >='0'
+and sr_wor_age <= '5'
+and sr_cal_age = '4' -- Scenario 8
+
+
+
+
+SLA
+====
+
+-- Total Records  of SLA POPULATED IN SR FACT TABLE
+
+Select count(SLA)
+FROM  cap_mi_test.service_request_event_fact_v2
+Where business_date >= '2018-12-01'
+and business_date <= '2018-12-31'
+
+-- 7663303 Records Returned
+
+-- Comparison of SLA's populated between SR Fact table and deived values
+
+-- Count of Matching Records
+
+Select A.sr_number, A.Business_date,A.sr_process,B.Process, A.sr_area, B.area,A.sr_Sub_area,B.Subarea, CAST(CAST(regexp_replace(TRIM(A.SLA),'\\.','') AS INT)/10 AS INT) SLA, B.SLA
+--Select count(*)
+FROM
+(Select *
+FROM  cap_mi_test.service_request_event_fact_v2
+Where business_date >= '2018-12-01'
+and business_date <= '2018-12-31' ) A
+LEFT JOIN
+(Select *
+FROM Cap_mi_test.sr_sla ) B
+ON A.sr_process=B.process
+AND A.sr_area=B.area
+AND A.SR_sub_area=B.subarea
+Where CAST(CAST(regexp_replace(TRIM(A.SLA),'\\.','') AS INT)/10 AS INT) = CAST(B.SLA AS INT)
+
+-- 7663303 Records Returned
+
+-- Count of Unmatched Records
+
+Select A.sr_number, A.Business_date,A.sr_process,B.Process, A.sr_area, B.area,A.sr_Sub_area,B.Subarea, CAST(CAST(regexp_replace(TRIM(A.SLA),'\\.','') AS INT)/10 AS INT) SLA, B.SLA
+FROM
+(Select *
+FROM  cap_mi_test.service_request_event_fact_v2
+Where business_date >= '2018-12-01'
+and business_date <= '2018-12-31' ) A
+LEFT JOIN
+(Select *
+FROM Cap_mi_test.sr_sla ) B
+ON TRIM(A.sr_process)=TRIM(B.process)
+AND A.sr_area=B.area
+AND A.SR_sub_area=B.subarea
+Where CAST(CAST(regexp_replace(TRIM(A.SLA),'\\.','') AS INT)/10 AS INT) <> CAST(B.SLA AS INT)
+Order by A.sr_process, A.sr_area,A.sr_Sub_area
+
+-- 0 Records Returned
+
+
+
+Band
+======
+
+-- Count of Band populated in SR Fact table
+
+Select count(band)
+FROM  cap_mi_test.service_request_event_fact_v2
+Where business_date >= '2018-12-01'
+and business_date <= '2018-12-31'
+
+-- 7669307
+
+-- Comparison of Band populated in SR Fact and Derived values
+
+-- Count of Unmatched records
+
+Select count(*)
+FROM
+(Select sr_number, Business_date,SLA,sr_cal_age, max(Band_calc) as Band_SRC
+--Select sr_number, business_date, SLA,sr_cal_age, band, AGE_BAND, Band_calc, start_day,End_day
+FROM (Select sr_number,Business_date, SLA, sr_cal_age,A.band,B.Band AS AGE_BAND,
+Case when CAST(CAST(regexp_replace(TRIM(A.SLA),'\\.','') AS INT)/10 AS INT) = CAST(B.Total_SLA AS INT) and Cast(sr_cal_age as INT) >= CAST(start_day as INT) and cast(sr_cal_age as INT) < CAST(end_day AS INT) THEN B.band Else '0' END AS BAND_CALC
+, start_day, End_day
+FROM (Select *
+FROM  cap_mi_test.service_request_event_fact_v2 
+Where business_date >= '2018-12-01'
+and business_date <= '2018-12-31') A
+Inner join 
+(Select * FROM cap_mi_test.age_band) B
+ON CAST(CAST(regexp_replace(TRIM(A.SLA),'\\.','') AS INT)/10 AS INT) = CAST(B.Total_SLA AS INT) ) AA
+Where 
+Band_calc <> '0'
+--and sr_number = '1-2539726528'
+group by sr_number, Business_date,SLA,sr_cal_age ) SRC
+INNER JOIN
+(Select *
+FROM  cap_mi_test.service_request_event_fact_v2 
+Where business_date >= '2018-12-01'
+and business_date <= '2018-12-31') Tgt
+ON Src.sr_number= Tgt.sr_number
+AND src.business_date=Tgt.business_date
+AND Src.SLA = Tgt.SLA
+AND Src.sr_cal_age = Tgt.sr_cal_age
+and Band <> Band_SRC
+
+ 	count(*)
+1	0
+
+-- 0 Records Returned
+
+-- Count of Matching records
+
+Select 
+--Src.sr_number, Src.business_date, Tgt.SLA, Tgt.sr_cal_age,Tgt.Band, Src.Band_SRC
+count(*)
+FROM
+(Select sr_number, Business_date,SLA,sr_cal_age, max(Band_calc) as Band_SRC
+FROM (Select sr_number,Business_date, SLA, sr_cal_age,A.band,B.Band AS AGE_BAND,
+Case when CAST(CAST(regexp_replace(TRIM(A.SLA),'\\.','') AS INT)/10 AS INT) = CAST(B.Total_SLA AS INT) and Cast(sr_cal_age as INT) >= CAST(start_day as INT) and cast(sr_cal_age as INT) < CAST(end_day AS INT) THEN B.band Else '0' END AS BAND_CALC
+, start_day, End_day
+FROM (Select *
+FROM  cap_mi_test.service_request_event_fact_v2 
+Where business_date >= '2018-12-01'
+and business_date <= '2018-12-31') A
+Inner join 
+(Select * FROM cap_mi_test.age_band) B
+ON CAST(CAST(regexp_replace(TRIM(A.SLA),'\\.','') AS INT)/10 AS INT) = CAST(B.Total_SLA AS INT) ) AA
+Where 
+Band_calc <> '0'
+group by sr_number, Business_date,SLA,sr_cal_age ) SRC
+INNER JOIN
+(Select *
+FROM  cap_mi_test.service_request_event_fact_v2 
+Where business_date >= '2018-12-01'
+and business_date <= '2018-12-31') Tgt
+ON Src.sr_number= Tgt.sr_number
+AND src.business_date=Tgt.business_date
+AND Src.SLA = Tgt.SLA
+AND Src.sr_cal_age = Tgt.sr_cal_age
+and Band = Band_SRC
+
+
+ 	count(*)
+1	7663303
+
+wor_Band
+==========
+
+-- Count of Working Day band populated in SR Fact table
+
+Select count(wor_Band)
+FROM  cap_mi_test.service_request_event_fact_v2
+Where business_date >= '2018-12-01'
+and business_date <= '2018-12-31'
+
+-- 7669307
+
+
+-- Comparson of Working Day band between SR fact and Derived values
+
+-- Count of Matching records
+
+Select 
+--Src.sr_number, Src.business_date, Tgt.SLA, Tgt.sr_cal_age,Tgt.Band, Src.Band_SRC
+count(*)
+FROM
+(Select sr_number, Business_date,SLA,sr_wor_age, max(Wor_BAND_CALC) as Wor_BAND_CALC
+--Select sr_number, business_date, SLA,sr_cal_age, band, AGE_BAND, Band_calc, start_day,End_day
+FROM (Select sr_number,Business_date, SLA, sr_wor_age,A.wor_band,B.Band AS Wor_AGE_BAND,
+Case when CAST(CAST(regexp_replace(TRIM(A.SLA),'\\.','') AS INT)/10 AS INT) = CAST(B.Total_SLA AS INT) and Cast(sr_wor_age as INT) >= CAST(start_day as INT) and cast(sr_wor_age as INT) < CAST(end_day AS INT) THEN B.band Else '0' END AS Wor_BAND_CALC
+, start_day, End_day
+FROM (Select *
+FROM  cap_mi_test.service_request_event_fact_v2 
+Where business_date >= '2018-12-01'
+and business_date <= '2018-12-31') A
+Inner join 
+(Select * FROM cap_mi_test.age_band) B
+ON CAST(CAST(regexp_replace(TRIM(A.SLA),'\\.','') AS INT)/10 AS INT) = CAST(B.Total_SLA AS INT) ) AA
+Where 
+Wor_BAND_CALC <> '0'
+--and sr_number = '1-2539726528'
+group by sr_number, Business_date,SLA,sr_wor_age ) SRC
+INNER JOIN
+(Select *
+FROM  cap_mi_test.service_request_event_fact_v2 
+Where business_date >= '2018-12-01'
+and business_date <= '2018-12-31') Tgt
+ON Src.sr_number= Tgt.sr_number
+AND src.business_date=Tgt.business_date
+AND Src.SLA = Tgt.SLA
+AND Src.sr_wor_age = Tgt.sr_wor_age
+and Wor_Band <> Wor_BAND_CALC
+
+
+-- 0 Records Returned
+
+-- Count of Matching Records
+
+Select 
+--Src.sr_number, Src.business_date, Tgt.SLA, Tgt.sr_cal_age,Tgt.Band, Src.Band_SRC
+count(*)
+FROM
+(Select sr_number, Business_date,SLA,sr_wor_age, max(Wor_BAND_CALC) as Wor_BAND_CALC
+--Select sr_number, business_date, SLA,sr_cal_age, band, AGE_BAND, Band_calc, start_day,End_day
+FROM (Select sr_number,Business_date, SLA, sr_wor_age,A.wor_band,B.Band AS Wor_AGE_BAND,
+Case when CAST(CAST(regexp_replace(TRIM(A.SLA),'\\.','') AS INT)/10 AS INT) = CAST(B.Total_SLA AS INT) and Cast(sr_wor_age as INT) >= CAST(start_day as INT) and cast(sr_wor_age as INT) < CAST(end_day AS INT) THEN B.band Else '0' END AS Wor_BAND_CALC
+, start_day, End_day
+FROM (Select *
+FROM  cap_mi_test.service_request_event_fact_v2 
+Where business_date >= '2018-12-01'
+and business_date <= '2018-12-31') A
+Inner join 
+(Select * FROM cap_mi_test.age_band) B
+ON CAST(CAST(regexp_replace(TRIM(A.SLA),'\\.','') AS INT)/10 AS INT) = CAST(B.Total_SLA AS INT) ) AA
+Where 
+Wor_BAND_CALC <> '0'
+--and sr_number = '1-2539726528'
+group by sr_number, Business_date,SLA,sr_wor_age ) SRC
+INNER JOIN
+(Select *
+FROM  cap_mi_test.service_request_event_fact_v2 
+Where business_date >= '2018-12-01'
+and business_date <= '2018-12-31') Tgt
+ON Src.sr_number= Tgt.sr_number
+AND src.business_date=Tgt.business_date
+AND Src.SLA = Tgt.SLA
+AND Src.sr_wor_age = Tgt.sr_wor_age
+and Wor_Band = Wor_BAND_CALC
+
+
+
+ 	count(*)
+1	7663303
+
+======================================================================================================================================
+======================================================================================================================================
+
+
+Business_date - Using Siebel_base table instead of Fact for previous Day data
+===============================================================================
+
+-- Count of Records in Intraday Base table (Date 01/12/2018)
+
+Select count(sr_num)
+FROM siebel_base.cx_intraday_s_srv_req sr 
+WHERE load_date != '2019-02-21'
+and business_date = '2018-12-01'
+
+-- 4372
+
+-- Count of Records in Dimension (Date 01/12/2018) - Previous Day
+
+Select count(sr_number)
+from cap_mi_test.v_service_request_dim
+Where business_date = '2018-12-01'
+
+-- 4372
+
+-- Count of Records in Dimension (Date 01/12/2018) - Current Day
+
+Select count(sr_number)
+from cap_mi_test.v_service_request_dim
+Where business_date = '2018-12-01'
+
+-- 4372
+
+-- Logic to check Business Date (Date 2018-12-02)
+
+-- Count of Records to be carry forwarded
+
+Select count(*)
+FROM 
+(Select sr_number
+FROM
+(Select  sr_num AS sr_number, row_number() OVER (PARTITION by sr_num ORDER BY last_upd DESC) as Record_rank
+From siebel_base.cx_intraday_s_srv_req 
+Where ACT_CLOSE_DT is NULL
+AND load_date != '2019-02-21'
+and business_date = '2018-12-01') AA
+Where Record_rank = 1) A
+LEFT JOIN
+(Select sr_number
+FROM 
+(Select  sr_number, row_number() OVER (PARTITION by sr_number ORDER BY sr_updated_date DESC) as Record_rank
+FROM cap_mi_test.v_service_request_dim
+Where business_date = '2018-12-02') BB
+Where Record_rank = 1) B
+ON A.sr_number = B.sr_number
+Where B.sr_number is NULL
+
+-- 1641
+
+-- Comparison of number of records returned when picked from SR Fact and when picked from Intraday Base table
+
+-- Count of records when picked from Intraday Base table
+
+Select count(*)
+FROM 
+(Select sr_number
+FROM
+(Select  sr_num AS sr_number, row_number() OVER (PARTITION by sr_num ORDER BY last_upd DESC) as Record_rank
+--FROM cap_mi_test.service_request_event_fact_v2
+From siebel_base.cx_intraday_s_srv_req 
+--Where sr_event_clearance_ind != '1'
+Where ACT_CLOSE_DT is NULL
+--AND (sr_event_intake_ind = '1' or sr_event_work_on_hand_ind = '1')
+AND load_date != '2019-02-21'
+and business_date = '2018-12-01') AA
+Where Record_rank = 1) A
+LEFT JOIN
+(Select sr_number
+FROM 
+(Select  sr_number, row_number() OVER (PARTITION by sr_number ORDER BY sr_updated_date DESC) as Record_rank
+FROM cap_mi_test.v_service_request_dim
+--Limit 10
+Where business_date = '2018-12-02') BB
+Where Record_rank = 1) B
+ON A.sr_number = B.sr_number
+Where B.sr_number is NULL
+Union All
+Select count(*)
+FROM cap_mi_test.v_service_request_dim
+--Limit 10
+Where business_date = '2018-12-02'
+
+1   1641
+2	3833
+
+-- Count of records when picked from Intraday Base table
+
+Select count(*)
+FROM 
+(Select sr_number
+FROM
+(Select  sr_number, row_number() OVER (PARTITION by sr_number ORDER BY sr_updated_date DESC) as Record_rank
+FROM cap_mi_test.service_request_event_fact_v2
+Where sr_event_clearance_ind != '1'
+AND business_date = '2018-12-01') AA
+Where Record_rank = 1) A
+LEFT JOIN
+(Select sr_number
+FROM 
+(Select  sr_number, row_number() OVER (PARTITION by sr_number ORDER BY sr_updated_date DESC) as Record_rank
+FROM cap_mi_test.v_service_request_dim
+Where business_date = '2018-12-02') BB
+Where Record_rank = 1) B
+ON A.sr_number = B.sr_number
+Where B.sr_number is NULL
+Union All
+Select count(*)
+FROM cap_mi_test.v_service_request_dim
+--Limit 10
+Where business_date = '2018-12-06'
+
+
+1   1641
+2	3833
