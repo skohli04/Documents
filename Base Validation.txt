@@ -1,0 +1,112 @@
+-- Glif
+--===========
+
+-- Record count checks
+=======================
+
+Select count(*) from Bancs_base.Glif;
+
+
+-- 2851358
+
+Select count(*) from Bancs_raw.Glif;
+
+-- 2851358
+
+-- Record Differences
+=======================
+
+-- RAW -> BASE
+
+Select *
+From Bancs_raw.Glif RAW
+WHERE  NOT EXISTS (Select * from Bancs_base.Glif BASE 
+WHERE RAW.key_1 = BASE.key_1);
+
+-- 0 Records
+
+-- BASE -> RAW
+
+Select *
+From Bancs_base.Glif BASE
+WHERE  NOT EXISTS (Select * from Bancs_raw.Glif RAW 
+WHERE RAW.key_1 = BASE.key_1);
+
+
+-- 0 Records
+
+
+-- Depp
+--===========
+
+-- Record count checks
+=======================
+
+Select count(*) from Bancs_base.Depp;
+
+
+-- 29
+
+Select count(*) from Bancs_raw.Depp;
+
+-- 29
+
+-- Record Differences
+=======================
+
+-- RAW -> BASEac
+
+Select *
+From Bancs_raw.Depp RAW
+WHERE  NOT EXISTS (Select * from Bancs_base.Depp BASE 
+WHERE RAW.row_wid = BASE.row_wid);
+
+-- 0 Records
+
+-- BASE -> RAW
+
+Select *
+From Bancs_base.Depp BASE
+WHERE  NOT EXISTS (Select * from Bancs_raw.Depp RAW 
+WHERE RAW.row_wid = BASE.row_wid);
+
+
+-- 0 Records
+
+-- Invm
+--===========
+
+-- Record count checks
+=======================
+
+Select count(*) from Bancs_base.Invm;
+
+
+-- 63860
+
+Select count(*) from Bancs_raw.Invm;
+
+-- 63860
+
+-- Record Differences
+=======================
+
+-- RAW -> BASE
+
+Select *
+From Bancs_raw.Invm RAW
+WHERE  NOT EXISTS (Select * from Bancs_base.Invm BASE 
+WHERE RAW.row_wid = BASE.row_wid);
+
+-- 0 Records
+
+-- BASE -> RAW
+
+Select *
+From Bancs_base.Invm BASE
+WHERE  NOT EXISTS (Select * from Bancs_raw.Invm RAW 
+WHERE RAW.row_wid = BASE.row_wid);
+
+
+-- 0 Records
+
