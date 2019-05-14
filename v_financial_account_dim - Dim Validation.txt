@@ -1,0 +1,711 @@
+v_financial_account_dim 
+=====================================
+=====================================
+
+
+SHOW CREATE TABLE v_financial_account_dim 
+
+-- Record Count
+
+Select count(*)
+FROM
+(Select * FROM Bancs_base.GLIF 
+WHERE Upper(trim(current_flg))  = 'Y') A
+INNER JOIN
+(Select * FROM Bancs_base.INVM 
+WHERE Upper(trim(current_flg)) = 'Y') B
+ON concat(upper(trim(A.soc)), upper(trim(A.glif_references))) = upper(trim(B.key_1))
+INNER JOIN
+(Select * FROM Bancs_base.DEPP 
+WHERE Upper(trim(current_flg)) = 'Y') C
+ON B.acct_type = C.type
+AND B.int_cat = C.int_cat
+
+
+-- 2699094
+
+Select counT(*)
+FROM cap_mi_test.v_financial_account_dim
+
+-- 2699094
+
+-- Record validation
+
+bancs_account_number, gl_class_code, gl_transcation_amount, gl_branch, gl_transcation_date, gl_transcation_id
+=============================================================================================================
+
+Select count(*)
+FROM
+(Select
+A.glif_references AS bancs_account_number,
+A.gl_class_code,
+A.lcy_amt AS gl_transcation_amount,
+A.brch AS gl_branch,
+A.trans_date AS  gl_transcation_date,
+A.key_1 AS gl_transcation_id
+FROM
+(Select * FROM Bancs_base.GLIF 
+WHERE Upper(trim(current_flg))  = 'Y') A
+INNER JOIN
+(Select * FROM Bancs_base.INVM 
+WHERE Upper(trim(current_flg)) = 'Y') B
+ON concat(upper(trim(A.soc)), upper(trim(A.glif_references))) = upper(trim(B.key_1))
+INNER JOIN
+(Select * FROM Bancs_base.DEPP 
+WHERE Upper(trim(current_flg)) = 'Y') C
+ON B.acct_type = C.type
+AND B.int_cat = C.int_cat) AA
+INNER JOIN cap_mi_test.v_financial_account_dim BB
+ON AA.bancs_account_number = BB.bancs_account_number
+AND AA.gl_class_code = BB.gl_class_code
+AND AA.gl_transcation_amount = BB.gl_transcation_amount
+AND AA.gl_branch = BB.gl_branch
+AND AA.gl_transcation_id = BB.gl_transcation_id
+
+
+-- 2699094
+
+
+gl_code
+=======
+
+Select counT(*)
+FROM cap_mi_test.v_financial_account_dim
+
+-- 2699094
+
+Select count(*)
+FROM
+(Select
+A.glif_references AS bancs_account_number,
+A.gl_class_code,
+A.lcy_amt AS gl_transcation_amount,
+A.brch AS gl_branch,
+A.trans_date AS  gl_transcation_date,
+A.key_1 AS gl_transcation_id,
+C.Type,
+C.Int_cat,
+B.Key_1,
+A.business_date,
+substr(A.GL_CLASS_CODE,12,5) AS GL_Code
+FROM
+(Select * FROM Bancs_base.GLIF 
+WHERE Upper(trim(current_flg))  = 'Y') A
+INNER JOIN
+(Select * FROM Bancs_base.INVM 
+WHERE Upper(trim(current_flg)) = 'Y') B
+ON concat(upper(trim(A.soc)), upper(trim(A.glif_references))) = upper(trim(B.key_1))
+INNER JOIN
+(Select * FROM Bancs_base.DEPP 
+WHERE Upper(trim(current_flg)) = 'Y') C
+ON B.acct_type = C.type
+AND B.int_cat = C.int_cat) AA
+INNER JOIN cap_mi_test.v_financial_account_dim BB
+ON AA.bancs_account_number = BB.bancs_account_number
+AND AA.gl_class_code = BB.gl_class_code
+AND AA.gl_transcation_amount = BB.gl_transcation_amount
+AND AA.gl_branch = BB.gl_branch
+AND AA.GL_Code = BB.GL_Code
+AND AA.Type = BB.Type
+AND AA.Int_cat = Bb.Int_cat
+AND AA.key_1 = BB.Key_1
+AND AA.business_date = BB.business_date
+AND AA.gl_transcation_id = BB.gl_transcation_id
+
+--2699094
+
+-- Matching Records
+
+Select count(*)
+FROM
+(Select
+A.glif_references AS bancs_account_number,
+A.gl_class_code,
+A.lcy_amt AS gl_transcation_amount,
+A.brch AS gl_branch,
+A.trans_date AS  gl_transcation_date,
+A.key_1 AS gl_transcation_id,
+C.Type,
+C.Int_cat,
+B.Key_1,
+A.business_date,
+substr(A.GL_CLASS_CODE,12,5) AS GL_Code
+FROM
+(Select * FROM Bancs_base.GLIF 
+WHERE Upper(trim(current_flg))  = 'Y') A
+INNER JOIN
+(Select * FROM Bancs_base.INVM 
+WHERE Upper(trim(current_flg)) = 'Y') B
+ON concat(upper(trim(A.soc)), upper(trim(A.glif_references))) = upper(trim(B.key_1))
+INNER JOIN
+(Select * FROM Bancs_base.DEPP 
+WHERE Upper(trim(current_flg)) = 'Y') C
+ON B.acct_type = C.type
+AND B.int_cat = C.int_cat) AA
+INNER JOIN cap_mi_test.v_financial_account_dim BB
+ON AA.bancs_account_number = BB.bancs_account_number
+AND AA.gl_class_code = BB.gl_class_code
+AND AA.gl_transcation_amount = BB.gl_transcation_amount
+AND AA.gl_branch = BB.gl_branch
+AND AA.GL_Code = BB.GL_Code
+AND AA.Type = BB.Type
+AND AA.Int_cat = Bb.Int_cat
+AND AA.key_1 = BB.Key_1
+AND AA.business_date = BB.business_date
+AND AA.gl_transcation_id = BB.gl_transcation_id
+AND AA.GL_CODE = BB.GL_CODE
+
+--2699094
+
+-- Unmatched Records
+
+Select count(*)
+FROM
+(Select
+A.glif_references AS bancs_account_number,
+A.gl_class_code,
+A.lcy_amt AS gl_transcation_amount,
+A.brch AS gl_branch,
+A.trans_date AS  gl_transcation_date,
+A.key_1 AS gl_transcation_id,
+C.Type,
+C.Int_cat,
+B.Key_1,
+A.business_date,
+substr(A.GL_CLASS_CODE,12,5) AS GL_Code
+FROM
+(Select * FROM Bancs_base.GLIF 
+WHERE Upper(trim(current_flg))  = 'Y') A
+INNER JOIN
+(Select * FROM Bancs_base.INVM 
+WHERE Upper(trim(current_flg)) = 'Y') B
+ON concat(upper(trim(A.soc)), upper(trim(A.glif_references))) = upper(trim(B.key_1))
+INNER JOIN
+(Select * FROM Bancs_base.DEPP 
+WHERE Upper(trim(current_flg)) = 'Y') C
+ON B.acct_type = C.type
+AND B.int_cat = C.int_cat) AA
+INNER JOIN cap_mi_test.v_financial_account_dim BB
+ON AA.bancs_account_number = BB.bancs_account_number
+AND AA.gl_class_code = BB.gl_class_code
+AND AA.gl_transcation_amount = BB.gl_transcation_amount
+AND AA.gl_branch = BB.gl_branch
+AND AA.GL_Code = BB.GL_Code
+AND AA.Type = BB.Type
+AND AA.Int_cat = Bb.Int_cat
+AND AA.key_1 = BB.Key_1
+AND AA.business_date = BB.business_date
+AND AA.gl_transcation_id = BB.gl_transcation_id
+AND AA.GL_CODE <> BB.GL_CODE
+
+
+-- 0 Records
+
+
+SCHEME
+=======
+
+Select counT(*)
+FROM cap_mi_test.v_financial_account_dim
+
+-- 2699094
+
+Select count(*)
+FROM
+(Select
+A.glif_references AS bancs_account_number,
+A.gl_class_code,
+A.lcy_amt AS gl_transcation_amount,
+A.brch AS gl_branch,
+A.trans_date AS  gl_transcation_date,
+A.key_1 AS gl_transcation_id,
+C.Type,
+C.Int_cat,
+B.Key_1,
+A.business_date,
+substr(A.GL_CLASS_CODE,12,5) AS GL_Code,
+CASE    WHEN SUBSTR(C.ACCT_SCHEME_TYP, 2,1) = '1' THEN 'FS'
+        WHEN SUBSTR(C.ACCT_SCHEME_TYP, 2,1) = '2' THEN 'RB'
+        ELSE SUBSTR(C.ACCT_SCHEME_TYP, 2,1) 
+        END AS Scheme
+FROM
+(Select * FROM Bancs_base.GLIF 
+WHERE Upper(trim(current_flg))  = 'Y') A
+INNER JOIN
+(Select * FROM Bancs_base.INVM 
+WHERE Upper(trim(current_flg)) = 'Y') B
+ON concat(upper(trim(A.soc)), upper(trim(A.glif_references))) = upper(trim(B.key_1))
+INNER JOIN
+(Select * FROM Bancs_base.DEPP 
+WHERE Upper(trim(current_flg)) = 'Y') C
+ON B.acct_type = C.type
+AND B.int_cat = C.int_cat) AA
+INNER JOIN cap_mi_test.v_financial_account_dim BB
+ON AA.bancs_account_number = BB.bancs_account_number
+AND AA.gl_class_code = BB.gl_class_code
+AND AA.gl_transcation_amount = BB.gl_transcation_amount
+AND AA.gl_branch = BB.gl_branch
+AND AA.GL_Code = BB.GL_Code
+AND AA.Type = BB.Type
+AND AA.Int_cat = Bb.Int_cat
+AND AA.key_1 = BB.Key_1
+AND AA.business_date = BB.business_date
+AND AA.gl_transcation_id = BB.gl_transcation_id
+
+--2699094
+
+-- Matching Records
+
+Select count(*)
+FROM
+(Select
+A.glif_references AS bancs_account_number,
+A.gl_class_code,
+A.lcy_amt AS gl_transcation_amount,
+A.brch AS gl_branch,
+A.trans_date AS  gl_transcation_date,
+A.key_1 AS gl_transcation_id,
+C.Type,
+C.Int_cat,
+B.Key_1,
+A.business_date,
+substr(A.GL_CLASS_CODE,12,5) AS GL_Code,
+CASE    WHEN SUBSTR(C.ACCT_SCHEME_TYP, 2,1) = '1' THEN 'FS'
+        WHEN SUBSTR(C.ACCT_SCHEME_TYP, 2,1) = '2' THEN 'RB'
+        ELSE SUBSTR(C.ACCT_SCHEME_TYP, 2,1) 
+        END AS Scheme
+FROM
+(Select * FROM Bancs_base.GLIF 
+WHERE Upper(trim(current_flg))  = 'Y') A
+INNER JOIN
+(Select * FROM Bancs_base.INVM 
+WHERE Upper(trim(current_flg)) = 'Y') B
+ON concat(upper(trim(A.soc)), upper(trim(A.glif_references))) = upper(trim(B.key_1))
+INNER JOIN
+(Select * FROM Bancs_base.DEPP 
+WHERE Upper(trim(current_flg)) = 'Y') C
+ON B.acct_type = C.type
+AND B.int_cat = C.int_cat) AA
+INNER JOIN cap_mi_test.v_financial_account_dim BB
+ON AA.bancs_account_number = BB.bancs_account_number
+AND AA.gl_class_code = BB.gl_class_code
+AND AA.gl_transcation_amount = BB.gl_transcation_amount
+AND AA.gl_branch = BB.gl_branch
+AND AA.GL_Code = BB.GL_Code
+AND AA.Type = BB.Type
+AND AA.Int_cat = Bb.Int_cat
+AND AA.key_1 = BB.Key_1
+AND AA.business_date = BB.business_date
+AND AA.gl_transcation_id = BB.gl_transcation_id
+AND AA.SCHEME = BB.SCHEME
+
+--2699094
+
+-- Unmatched Records
+
+Select count(*)
+FROM
+(Select
+A.glif_references AS bancs_account_number,
+A.gl_class_code,
+A.lcy_amt AS gl_transcation_amount,
+A.brch AS gl_branch,
+A.trans_date AS  gl_transcation_date,
+A.key_1 AS gl_transcation_id,
+C.Type,
+C.Int_cat,
+B.Key_1,
+A.business_date,
+substr(A.GL_CLASS_CODE,12,5) AS GL_Code,
+CASE    WHEN SUBSTR(C.ACCT_SCHEME_TYP, 2,1) = '1' THEN 'FS'
+        WHEN SUBSTR(C.ACCT_SCHEME_TYP, 2,1) = '2' THEN 'RB'
+        ELSE SUBSTR(C.ACCT_SCHEME_TYP, 2,1) 
+        END AS Scheme
+FROM
+(Select * FROM Bancs_base.GLIF 
+WHERE Upper(trim(current_flg))  = 'Y') A
+INNER JOIN
+(Select * FROM Bancs_base.INVM 
+WHERE Upper(trim(current_flg)) = 'Y') B
+ON concat(upper(trim(A.soc)), upper(trim(A.glif_references))) = upper(trim(B.key_1))
+INNER JOIN
+(Select * FROM Bancs_base.DEPP 
+WHERE Upper(trim(current_flg)) = 'Y') C
+ON B.acct_type = C.type
+AND B.int_cat = C.int_cat) AA
+INNER JOIN cap_mi_test.v_financial_account_dim BB
+ON AA.bancs_account_number = BB.bancs_account_number
+AND AA.gl_class_code = BB.gl_class_code
+AND AA.gl_transcation_amount = BB.gl_transcation_amount
+AND AA.gl_branch = BB.gl_branch
+AND AA.GL_Code = BB.GL_Code
+AND AA.Type = BB.Type
+AND AA.Int_cat = Bb.Int_cat
+AND AA.key_1 = BB.Key_1
+AND AA.business_date = BB.business_date
+AND AA.gl_transcation_id = BB.gl_transcation_id
+AND AA.SCHEME <> BB.SCHEME
+
+
+-- 0 Records
+ 
+
+
+Division
+=======
+
+Select counT(*)
+FROM cap_mi_test.v_financial_account_dim
+
+-- 2699094
+
+Select count(*)
+FROM
+(Select
+A.glif_references AS bancs_account_number,
+A.gl_class_code,
+A.lcy_amt AS gl_transcation_amount,
+A.brch AS gl_branch,
+A.trans_date AS  gl_transcation_date,
+A.key_1 AS gl_transcation_id,
+C.Type,
+C.Int_cat,
+B.Key_1,
+A.business_date,
+substr(A.GL_CLASS_CODE,12,5) AS GL_Code,
+CASE    WHEN SUBSTR(C.ACCT_SCHEME_TYP, 2,1) = '1' THEN 'FS'
+        WHEN SUBSTR(C.ACCT_SCHEME_TYP, 2,1) = '2' THEN 'RB'
+        ELSE SUBSTR(C.ACCT_SCHEME_TYP, 2,1) 
+        END AS Scheme,
+CASE    WHEN SUBSTR(ACCT_SCHEME_TYP, 3,1) = '1' THEN 'Great Britain'
+        WHEN SUBSTR(ACCT_SCHEME_TYP, 3,1) = '2' THEN 'Northern Ireland'
+        ELSE SUBSTR(ACCT_SCHEME_TYP, 3,1) 
+        END AS DIVISION        
+FROM
+(Select * FROM Bancs_base.GLIF 
+WHERE Upper(trim(current_flg))  = 'Y') A
+INNER JOIN
+(Select * FROM Bancs_base.INVM 
+WHERE Upper(trim(current_flg)) = 'Y') B
+ON concat(upper(trim(A.soc)), upper(trim(A.glif_references))) = upper(trim(B.key_1))
+INNER JOIN
+(Select * FROM Bancs_base.DEPP 
+WHERE Upper(trim(current_flg)) = 'Y') C
+ON B.acct_type = C.type
+AND B.int_cat = C.int_cat) AA
+INNER JOIN cap_mi_test.v_financial_account_dim BB
+ON AA.bancs_account_number = BB.bancs_account_number
+AND AA.gl_class_code = BB.gl_class_code
+AND AA.gl_transcation_amount = BB.gl_transcation_amount
+AND AA.gl_branch = BB.gl_branch
+AND AA.GL_Code = BB.GL_Code
+AND AA.Type = BB.Type
+AND AA.Int_cat = Bb.Int_cat
+AND AA.key_1 = BB.Key_1
+AND AA.business_date = BB.business_date
+AND AA.gl_transcation_id = BB.gl_transcation_id
+
+--2699094
+
+-- Matching Records
+
+Select count(*)
+FROM
+(Select
+A.glif_references AS bancs_account_number,
+A.gl_class_code,
+A.lcy_amt AS gl_transcation_amount,
+A.brch AS gl_branch,
+A.trans_date AS  gl_transcation_date,
+A.key_1 AS gl_transcation_id,
+C.Type,
+C.Int_cat,
+B.Key_1,
+A.business_date,
+substr(A.GL_CLASS_CODE,12,5) AS GL_Code,
+CASE    WHEN SUBSTR(C.ACCT_SCHEME_TYP, 2,1) = '1' THEN 'FS'
+        WHEN SUBSTR(C.ACCT_SCHEME_TYP, 2,1) = '2' THEN 'RB'
+        ELSE SUBSTR(C.ACCT_SCHEME_TYP, 2,1) 
+        END AS Scheme,
+CASE    WHEN SUBSTR(ACCT_SCHEME_TYP, 3,1) = '1' THEN 'GB'
+        WHEN SUBSTR(ACCT_SCHEME_TYP, 3,1) = '2' THEN 'NI'
+        ELSE SUBSTR(ACCT_SCHEME_TYP, 3,1) 
+        END AS DIVISION        
+FROM
+(Select * FROM Bancs_base.GLIF 
+WHERE Upper(trim(current_flg))  = 'Y') A
+INNER JOIN
+(Select * FROM Bancs_base.INVM 
+WHERE Upper(trim(current_flg)) = 'Y') B
+ON concat(upper(trim(A.soc)), upper(trim(A.glif_references))) = upper(trim(B.key_1))
+INNER JOIN
+(Select * FROM Bancs_base.DEPP 
+WHERE Upper(trim(current_flg)) = 'Y') C
+ON B.acct_type = C.type
+AND B.int_cat = C.int_cat) AA
+INNER JOIN cap_mi_test.v_financial_account_dim BB
+ON AA.bancs_account_number = BB.bancs_account_number
+AND AA.gl_class_code = BB.gl_class_code
+AND AA.gl_transcation_amount = BB.gl_transcation_amount
+AND AA.gl_branch = BB.gl_branch
+AND AA.GL_Code = BB.GL_Code
+AND AA.Type = BB.Type
+AND AA.Int_cat = Bb.Int_cat
+AND AA.key_1 = BB.Key_1
+AND AA.business_date = BB.business_date
+AND AA.gl_transcation_id = BB.gl_transcation_id
+AND AA.Division = BB.Division
+
+--2699094
+
+-- Unmatched Records
+
+Select count(*)
+FROM
+(Select
+A.glif_references AS bancs_account_number,
+A.gl_class_code,
+A.lcy_amt AS gl_transcation_amount,
+A.brch AS gl_branch,
+A.trans_date AS  gl_transcation_date,
+A.key_1 AS gl_transcation_id,
+C.Type,
+C.Int_cat,
+B.Key_1,
+A.business_date,
+substr(A.GL_CLASS_CODE,12,5) AS GL_Code,
+CASE    WHEN SUBSTR(C.ACCT_SCHEME_TYP, 2,1) = '1' THEN 'FS'
+        WHEN SUBSTR(C.ACCT_SCHEME_TYP, 2,1) = '2' THEN 'RB'
+        ELSE SUBSTR(C.ACCT_SCHEME_TYP, 2,1) 
+        END AS Scheme,
+CASE    WHEN SUBSTR(ACCT_SCHEME_TYP, 3,1) = '1' THEN 'GB'
+        WHEN SUBSTR(ACCT_SCHEME_TYP, 3,1) = '2' THEN 'NI'
+        ELSE SUBSTR(ACCT_SCHEME_TYP, 3,1) 
+        END AS DIVISION
+FROM
+(Select * FROM Bancs_base.GLIF 
+WHERE Upper(trim(current_flg))  = 'Y') A
+INNER JOIN
+(Select * FROM Bancs_base.INVM 
+WHERE Upper(trim(current_flg)) = 'Y') B
+ON concat(upper(trim(A.soc)), upper(trim(A.glif_references))) = upper(trim(B.key_1))
+INNER JOIN
+(Select * FROM Bancs_base.DEPP 
+WHERE Upper(trim(current_flg)) = 'Y') C
+ON B.acct_type = C.type
+AND B.int_cat = C.int_cat) AA
+INNER JOIN cap_mi_test.v_financial_account_dim BB
+ON AA.bancs_account_number = BB.bancs_account_number
+AND AA.gl_class_code = BB.gl_class_code
+AND AA.gl_transcation_amount = BB.gl_transcation_amount
+AND AA.gl_branch = BB.gl_branch
+AND AA.GL_Code = BB.GL_Code
+AND AA.Type = BB.Type
+AND AA.Int_cat = Bb.Int_cat
+AND AA.key_1 = BB.Key_1
+AND AA.business_date = BB.business_date
+AND AA.gl_transcation_id = BB.gl_transcation_id
+AND AA.Division <> BB.Division
+
+
+-- 0 Records
+ 
+
+Account_Type
+==============
+
+Select counT(*)
+FROM cap_mi_test.v_financial_account_dim
+
+-- 2699094
+
+Select count(*)
+FROM
+(Select
+A.glif_references AS bancs_account_number,
+A.gl_class_code,
+A.lcy_amt AS gl_transcation_amount,
+A.brch AS gl_branch,
+A.trans_date AS  gl_transcation_date,
+A.key_1 AS gl_transcation_id,
+C.Type,
+C.Int_cat,
+B.Key_1,
+A.business_date,
+substr(A.GL_CLASS_CODE,12,5) AS GL_Code,
+CASE    WHEN SUBSTR(C.ACCT_SCHEME_TYP, 2,1) = '1' THEN 'FS'
+        WHEN SUBSTR(C.ACCT_SCHEME_TYP, 2,1) = '2' THEN 'RB'
+        ELSE SUBSTR(C.ACCT_SCHEME_TYP, 2,1) 
+        END AS Scheme,
+CASE    WHEN SUBSTR(ACCT_SCHEME_TYP, 3,1) = '1' THEN 'Great Britain'
+        WHEN SUBSTR(ACCT_SCHEME_TYP, 3,1) = '2' THEN 'Northern Ireland'
+        ELSE SUBSTR(ACCT_SCHEME_TYP, 3,1) 
+        END AS DIVISION,
+CASE WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='01' THEN 'NRP'
+	 WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='02' THEN 'PWC'
+	 WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='03' THEN 'Employer'
+	 WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='04' THEN 'Bailiff'
+	 WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='05' THEN 'XXX'
+	 WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='06' THEN 'Third Party'
+	 WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='07' THEN 'XXX'
+	 WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='08' THEN 'SAR'
+	 WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='09' THEN 'Employer OD'
+	 WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='10' THEN 'PWD OD'
+	 WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='11' THEN 'SoS'
+	 Else SUBSTR(ACCT_SCHEME_TYP,5,2)
+	 END AS ACCOUNT_TYPE        
+FROM
+(Select * FROM Bancs_base.GLIF 
+WHERE Upper(trim(current_flg))  = 'Y') A
+INNER JOIN
+(Select * FROM Bancs_base.INVM 
+WHERE Upper(trim(current_flg)) = 'Y') B
+ON concat(upper(trim(A.soc)), upper(trim(A.glif_references))) = upper(trim(B.key_1))
+INNER JOIN
+(Select * FROM Bancs_base.DEPP 
+WHERE Upper(trim(current_flg)) = 'Y') C
+ON B.acct_type = C.type
+AND B.int_cat = C.int_cat) AA
+INNER JOIN cap_mi_test.v_financial_account_dim BB
+ON AA.bancs_account_number = BB.bancs_account_number
+AND AA.gl_class_code = BB.gl_class_code
+AND AA.gl_transcation_amount = BB.gl_transcation_amount
+AND AA.gl_branch = BB.gl_branch
+AND AA.GL_Code = BB.GL_Code
+AND AA.Type = BB.Type
+AND AA.Int_cat = Bb.Int_cat
+AND AA.key_1 = BB.Key_1
+AND AA.business_date = BB.business_date
+AND AA.gl_transcation_id = BB.gl_transcation_id
+
+--2699094
+
+-- Matching Records
+
+Select count(*)
+FROM
+(Select
+A.glif_references AS bancs_account_number,
+A.gl_class_code,
+A.lcy_amt AS gl_transcation_amount,
+A.brch AS gl_branch,
+A.trans_date AS  gl_transcation_date,
+A.key_1 AS gl_transcation_id,
+C.Type,
+C.Int_cat,
+B.Key_1,
+A.business_date,
+substr(A.GL_CLASS_CODE,12,5) AS GL_Code,
+CASE    WHEN SUBSTR(C.ACCT_SCHEME_TYP, 2,1) = '1' THEN 'FS'
+        WHEN SUBSTR(C.ACCT_SCHEME_TYP, 2,1) = '2' THEN 'RB'
+        ELSE SUBSTR(C.ACCT_SCHEME_TYP, 2,1) 
+        END AS Scheme,
+CASE    WHEN SUBSTR(ACCT_SCHEME_TYP, 3,1) = '1' THEN 'GB'
+        WHEN SUBSTR(ACCT_SCHEME_TYP, 3,1) = '2' THEN 'NI'
+        ELSE SUBSTR(ACCT_SCHEME_TYP, 3,1) 
+        END AS DIVISION,
+CASE WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='01' THEN 'NRP'
+	 WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='02' THEN 'PWC'
+	 WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='03' THEN 'Employer'
+	 WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='04' THEN 'Bailiff'
+	 WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='05' THEN 'XXX'
+	 WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='06' THEN 'Third Party'
+	 WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='07' THEN 'XXX'
+	 WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='08' THEN 'SAR'
+	 WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='09' THEN 'Employer OD'
+	 WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='10' THEN 'PWD OD'
+	 WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='11' THEN 'SoS'
+	 Else SUBSTR(ACCT_SCHEME_TYP,5,2)
+	 END AS ACCOUNT_TYPE        
+FROM
+(Select * FROM Bancs_base.GLIF 
+WHERE Upper(trim(current_flg))  = 'Y') A
+INNER JOIN
+(Select * FROM Bancs_base.INVM 
+WHERE Upper(trim(current_flg)) = 'Y') B
+ON concat(upper(trim(A.soc)), upper(trim(A.glif_references))) = upper(trim(B.key_1))
+INNER JOIN
+(Select * FROM Bancs_base.DEPP 
+WHERE Upper(trim(current_flg)) = 'Y') C
+ON B.acct_type = C.type
+AND B.int_cat = C.int_cat) AA
+INNER JOIN cap_mi_test.v_financial_account_dim BB
+ON AA.bancs_account_number = BB.bancs_account_number
+AND AA.gl_class_code = BB.gl_class_code
+AND AA.gl_transcation_amount = BB.gl_transcation_amount
+AND AA.gl_branch = BB.gl_branch
+AND AA.GL_Code = BB.GL_Code
+AND AA.Type = BB.Type
+AND AA.Int_cat = Bb.Int_cat
+AND AA.key_1 = BB.Key_1
+AND AA.business_date = BB.business_date
+AND AA.gl_transcation_id = BB.gl_transcation_id
+AND AA.Account_Type = BB.Account_Type
+
+--2699094
+
+-- Unmatched Records
+
+Select count(*)
+FROM
+(Select
+A.glif_references AS bancs_account_number,
+A.gl_class_code,
+A.lcy_amt AS gl_transcation_amount,
+A.brch AS gl_branch,
+A.trans_date AS  gl_transcation_date,
+A.key_1 AS gl_transcation_id,
+C.Type,
+C.Int_cat,
+B.Key_1,
+A.business_date,
+substr(A.GL_CLASS_CODE,12,5) AS GL_Code,
+CASE    WHEN SUBSTR(C.ACCT_SCHEME_TYP, 2,1) = '1' THEN 'FS'
+        WHEN SUBSTR(C.ACCT_SCHEME_TYP, 2,1) = '2' THEN 'RB'
+        ELSE SUBSTR(C.ACCT_SCHEME_TYP, 2,1) 
+        END AS Scheme,
+CASE    WHEN SUBSTR(ACCT_SCHEME_TYP, 3,1) = '1' THEN 'GB'
+        WHEN SUBSTR(ACCT_SCHEME_TYP, 3,1) = '2' THEN 'NI'
+        ELSE SUBSTR(ACCT_SCHEME_TYP, 3,1) 
+        END AS DIVISION,
+CASE WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='01' THEN 'NRP'
+	 WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='02' THEN 'PWC'
+	 WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='03' THEN 'Employer'
+	 WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='04' THEN 'Bailiff'
+	 WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='05' THEN 'XXX'
+	 WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='06' THEN 'Third Party'
+	 WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='07' THEN 'XXX'
+	 WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='08' THEN 'SAR'
+	 WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='09' THEN 'Employer OD'
+	 WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='10' THEN 'PWD OD'
+	 WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='11' THEN 'SoS'
+	 Else SUBSTR(ACCT_SCHEME_TYP,5,2)
+	 END AS ACCOUNT_TYPE
+FROM
+(Select * FROM Bancs_base.GLIF 
+WHERE Upper(trim(current_flg))  = 'Y') A
+INNER JOIN
+(Select * FROM Bancs_base.INVM 
+WHERE Upper(trim(current_flg)) = 'Y') B
+ON concat(upper(trim(A.soc)), upper(trim(A.glif_references))) = upper(trim(B.key_1))
+INNER JOIN
+(Select * FROM Bancs_base.DEPP 
+WHERE Upper(trim(current_flg)) = 'Y') C
+ON B.acct_type = C.type
+AND B.int_cat = C.int_cat) AA
+INNER JOIN cap_mi_test.v_financial_account_dim BB
+ON AA.bancs_account_number = BB.bancs_account_number
+AND AA.gl_class_code = BB.gl_class_code
+AND AA.gl_transcation_amount = BB.gl_transcation_amount
+AND AA.gl_branch = BB.gl_branch
+AND AA.GL_Code = BB.GL_Code
+AND AA.Type = BB.Type
+AND AA.Int_cat = Bb.Int_cat
+AND AA.key_1 = BB.Key_1
+AND AA.business_date = BB.business_date
+AND AA.gl_transcation_id = BB.gl_transcation_id
+AND AA.Account_Type <> BB.Account_Type
+
+
+-- 0 Records
+ 
