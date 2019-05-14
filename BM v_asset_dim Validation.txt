@@ -1,0 +1,96 @@
+v_asset_dim
+============
+
+Select count(*)
+FROM cap_mi_test.v_asset_dim
+
+-- 51053
+
+Select count(*)
+FROM
+(Select Key_1, acct_type,int_cat
+From bancs_base.invm
+Where upper(trim(current_flg))='Y') A
+INNER JOIN 
+(Select *
+From bancs_base.depp
+Where upper(trim(current_flg))='Y') B
+ON A.acct_type = B.type
+And A.int_cat = B.int_cat
+Where substr(B.acct_scheme_typ,5,2) = '02'
+Union
+Select count(*)
+FROM
+(Select Key_1, acct_type,int_cat
+From bancs_base.invm
+Where upper(trim(current_flg))='Y') A
+INNER JOIN 
+(Select *
+From bancs_base.depp
+Where upper(trim(current_flg))='Y') B
+ON A.acct_type = B.type
+And A.int_cat = B.int_cat
+Where substr(B.acct_scheme_typ,5,2) != '02'
+
+
+ 	count(*)
+1	31442
+2	19604
+
+Select Key_1, acct_type,int_cat, count(*)
+FROM
+(Select A.Key_1, A.acct_type,A.int_cat
+FROM
+(Select Key_1, acct_type,int_cat
+From bancs_base.invm
+Where upper(trim(current_flg))='Y') A
+INNER JOIN 
+(Select *
+From bancs_base.depp
+Where upper(trim(current_flg))='Y') B
+ON A.acct_type = B.type
+And A.int_cat = B.int_cat
+Where substr(B.acct_scheme_typ,5,2) = '02'
+Union
+Select A.Key_1, A.acct_type,A.int_cat
+FROM
+(Select Key_1, acct_type,int_cat
+From bancs_base.invm
+Where upper(trim(current_flg))='Y') A
+INNER JOIN 
+(Select *
+From bancs_base.depp
+Where upper(trim(current_flg))='Y') B
+ON A.acct_type = B.type
+And A.int_cat = B.int_cat
+Where substr(B.acct_scheme_typ,5,2) != '02') AA
+group by Key_1, acct_type,int_cat
+having count(*) > 1
+
+-- 7 Rows Returned
+
+Select AA.*
+FROM cap_mi_test.v_asset_dim AA
+INNER JOIN
+(
+Select Key_1, acct_type,int_cat
+FROM
+(Select Key_1, acct_type,int_cat, count(*) AS COUNT_DUP
+FROM cap_mi_test.v_asset_dim
+group by Key_1, acct_type,int_cat
+) X
+Where COUNT_DUP > 1) BB
+ON AA.Key_1 = BB.Key_1
+AND AA.acct_type = BB.acct_type
+And AA.int_cat = BB.int_cat
+Order by AA.Key_1, AA.acct_type, AA.int_cat
+
+-- 14 Rows returned
+
+
+Select asset_num,pr_con_id,case_id,owner_accnt_id, current_flg
+from siebel_base.s_asset
+Where asset_num = '3000074210'
+and upper(trim(current_flg))='Y'
+
+-- Returns 2 records for same assett_num i.e. there are two asset_num in s_asset for an account number in Depp
