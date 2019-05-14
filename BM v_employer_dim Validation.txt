@@ -1,0 +1,64 @@
+v_employer_dim
+===============
+
+-- Record count check
+
+Select count(*)
+FROM
+(SELECT 
+A.row_id employer_id, 
+A.x_ern_arn employer_reference_number, 
+A.name employer_name 
+FROM siebel_base.s_org_ext A 
+WHERE upper(trim(A.current_flg)) = 'Y') AA
+
+--  3185
+
+Select count(*)
+FROM cap_mi_test.v_employer_dim
+
+-- 3185
+
+
+-- Matching Records
+
+Select BB.employer_id, BB.employer_reference_number, CC.employer_reference_number
+FROM
+( Select employer_id, employer_reference_number, employer_name
+FROM 
+(SELECT 
+A.row_id employer_id, 
+A.x_ern_arn employer_reference_number, 
+A.name employer_name 
+FROM siebel_base.s_org_ext A 
+WHERE upper(trim(A.current_flg)) = 'Y') AA
+) BB
+INNER JOIN
+(Select *
+FROM cap_mi_test.v_employer_dim) CC
+ON BB.employer_id = CC.employer_id
+
+-- 3185
+
+
+-- Unmatched Records
+
+Select BB.employer_id, BB.employer_reference_number, CC.employer_reference_number
+FROM
+( Select employer_id, employer_reference_number, employer_name
+FROM 
+(SELECT 
+A.row_id employer_id, 
+A.x_ern_arn employer_reference_number, 
+A.name employer_name 
+FROM siebel_base.s_org_ext A 
+WHERE upper(trim(A.current_flg)) = 'Y') AA
+) BB
+INNER JOIN
+(Select *
+FROM cap_mi_test.v_employer_dim) CC
+ON BB.employer_id = CC.employer_id
+AND (BB.employer_reference_number <> CC.employer_reference_number
+OR BB.employer_name <> CC.employer_name)
+
+-- 0
