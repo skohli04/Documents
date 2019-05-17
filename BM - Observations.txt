@@ -1,0 +1,19 @@
+Table Name							Actual Fieldname											Expected Field Name
+gl_account_daily_aggregated_fact	aggregate_value_of_nrp_child_maintenance_libality_charged	Aggregate_value_of_NRP_Child_Maintenance_Liability_Charged
+gl_account_daily_aggregated_fact	aggregate_value_of_nrp_coll_charges_written_of				aggregate_value_of_nrp_coll_charges_written_off
+gl_account_daily_aggregated_fact	aggregate_value_of_residual_arrears_written_of_nrp			aggregate_value_of_residual_arrears_written_off_nrp
+v_asset_dim							aseet_id													asset_id
+v_contact_dim_v2					contact_personal_interest_indica							contact_personal_interest_indicator
+v_financial_account_dim				gl_transcation_amount										gl_transaction_amount
+v_financial_account_dim				gl_transcation_id											gl_transaction_id
+
+
+Aggregated values in table should be rounded to 2 decimal places but values are not rounded (e.g. 20408.719999999998 and 9002000, 2.842170943040401e-14)
+
+aggregate_value_of_residual_arrears_cash_received
+aggregate_value_of_nrp_enforcement_charge_cash_received
+aggregate_value_of_nrp_collection_cash_received
+aggregate_value_of_residual_arrears_non_cash_receipt
+aggregate_value_of_nrp_coll_charges_written_of
+aggregate_value_of_nrp_enforcement_write_off
+aggregate_value_of_cmg_cost_written_off
