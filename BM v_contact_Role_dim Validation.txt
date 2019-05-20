@@ -1,0 +1,58 @@
+v_contact_role_dim
+===================
+
+
+-- Record count
+
+Select count(*)
+FROM cap_mi_test.v_contact_role_dim
+
+-- 44508
+
+Select count(*)
+FROM
+(Select 
+row_id AS contact_role_id, 
+type_cd AS contact_role, 
+case_id AS case_id, 
+per_id AS contact_id 
+FROM siebel_base.s_case_per
+Where current_flg = 'Y'
+AND type_cd IN ('PWC', 'NRP')
+) SRC
+
+-- 44508
+
+-- Unmatched Records
+
+Select *
+FROM cap_mi_test.v_contact_role_dim
+Where not exists
+(Select 
+row_id AS contact_role_id, 
+type_cd AS contact_role, 
+case_id AS case_id, 
+per_id AS contact_id 
+FROM siebel_base.s_case_per
+Where current_flg = 'Y'
+AND type_cd IN ('PWC', 'NRP')) 
+
+
+-- 0
+
+-- Matching Records
+
+Select count(*)
+FROM cap_mi_test.v_contact_role_dim
+Where exists
+(Select 
+row_id AS contact_role_id, 
+type_cd AS contact_role, 
+case_id AS case_id, 
+per_id AS contact_id 
+FROM siebel_base.s_case_per
+Where current_flg = 'Y'
+AND type_cd IN ('PWC', 'NRP')) 
+
+
+-- 44508
