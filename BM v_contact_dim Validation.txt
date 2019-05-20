@@ -1,0 +1,105 @@
+v_contact_dim
+=================
+
+-- Record count Checks
+
+Select count(*)
+FROM cap_mi_test.v_contact_dim
+
+-- 76097
+
+Select count(*)
+FROM
+(Select 
+A. Row_id AS CONTACT_ID,
+B.x_scin_num AS CONTACT_SCIN,
+CONCAT_WS(' ',NVL(A.fst_name,''),NVL(A.mid_name,''), NVL(A.last_name, '')) AS CONTACT_NAME,
+A.x_sensitive_contact AS contact_sensitive_indicator,
+A.x_personal_interest AS contact_personal_interest_indicator,
+A.created AS contact_created_date,
+A.last_upd AS contact_update_date,
+A.modification_num AS contact_version_number,
+A.pr_held_postn_id AS contact_position
+FROM 
+(Select AA.*
+FROM
+(Select row_id, fst_name, mid_name, last_name, x_sensitive_contact, x_personal_interest, created, last_upd, modification_num, pr_held_postn_id, bu_id,
+row_number() OVER (PARTITION BY row_id ORDER BY s_contact.business_date DESC) rownum
+FROM siebel_base.s_contact
+Where current_flg = 'Y') AA
+Where rownum = 1) A
+LEFT JOIN
+(Select *
+FROM siebel_base.s_contact_bu
+Where x_scin_num IS NOT NULL) B
+ON A.row_id = B.contact_id
+AND A.bu_id = B.bu_id
+) SRC
+
+-- 76097
+
+
+-- Unmatched Records
+
+Select *
+FROM cap_mi_test.v_contact_dim
+Where not exists
+(Select 
+A. Row_id AS CONTACT_ID,
+B.x_scin_num AS CONTACT_SCIN,
+CONCAT_WS(' ',NVL(A.fst_name,''),NVL(A.mid_name,''), NVL(A.last_name, '')) AS CONTACT_NAME,
+A.x_sensitive_contact AS contact_sensitive_indicator,
+A.x_personal_interest AS contact_personal_interest_indicator,
+A.created AS contact_created_date,
+A.last_upd AS contact_update_date,
+A.modification_num AS contact_version_number,
+A.pr_held_postn_id AS contact_position
+FROM 
+(Select AA.*
+FROM
+(Select row_id, fst_name, mid_name, last_name, x_sensitive_contact, x_personal_interest, created, last_upd, modification_num, pr_held_postn_id, bu_id,
+row_number() OVER (PARTITION BY row_id ORDER BY s_contact.business_date DESC) rownum
+FROM siebel_base.s_contact
+Where current_flg = 'Y') AA
+Where rownum = 1) A
+LEFT JOIN
+(Select *
+FROM siebel_base.s_contact_bu
+Where x_scin_num IS NOT NULL) B
+ON A.row_id = B.contact_id
+AND A.bu_id = B.bu_id)
+
+-- 0 Records
+
+-- Matching Records
+
+
+Select count(*)
+FROM cap_mi_test.v_contact_dim
+Where exists
+(Select 
+A. Row_id AS CONTACT_ID,
+B.x_scin_num AS CONTACT_SCIN,
+CONCAT_WS(' ',NVL(A.fst_name,''),NVL(A.mid_name,''), NVL(A.last_name, '')) AS CONTACT_NAME,
+A.x_sensitive_contact AS contact_sensitive_indicator,
+A.x_personal_interest AS contact_personal_interest_indicator,
+A.created AS contact_created_date,
+A.last_upd AS contact_update_date,
+A.modification_num AS contact_version_number,
+A.pr_held_postn_id AS contact_position
+FROM 
+(Select AA.*
+FROM
+(Select row_id, fst_name, mid_name, last_name, x_sensitive_contact, x_personal_interest, created, last_upd, modification_num, pr_held_postn_id, bu_id,
+row_number() OVER (PARTITION BY row_id ORDER BY s_contact.business_date DESC) rownum
+FROM siebel_base.s_contact
+Where current_flg = 'Y') AA
+Where rownum = 1) A
+LEFT JOIN
+(Select *
+FROM siebel_base.s_contact_bu
+Where x_scin_num IS NOT NULL) B
+ON A.row_id = B.contact_id
+AND A.bu_id = B.bu_id)
+
+-- 76097
