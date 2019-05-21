@@ -1,0 +1,584 @@
+cap_mi_test.gl_account_daily_aggregated_fact 
+==============================================
+
+Select count(*)
+FROM cap_mi_test.v_financial_account_dim A
+INNER JOIN v_gl_dim BB
+ON upper(trim(A.financial_account_id)) = concat(upper(trim(BB.soc)), upper(trim(BB.glif_references)))
+LEFT JOIN cap_mi_test.v_asset_dim B
+ON A.financial_account_id = B.Key_1
+LEFT JOIN cap_mi_test.v_contact_dim C
+ON B.contact_id = C.contact_id
+LEFT JOIN cap_mi_test.v_contact_role_dim D
+ON B.contact_id = D.contact_id
+AND B.case_id = D.case_id
+LEFT JOIN cap_mi_test.v_employer_dim E
+ON B.owner_accnt_id = E.employer_id
+
+-- 2699104
+
+-- Record count check
+
+Select count(*)
+FROM cap_mi_test.gl_account_daily_aggregated_fact
+
+-- 758865
+
+Select counT(*)
+FROM
+(Select
+BB.gl_transaction_date,
+A.scheme,
+A.Division,
+BB.gl_branch,
+BB.bancs_account_number,
+A.account_type,
+B.master_case_number_finance,
+C.contact_scin,
+C.contact_name,
+D.Contact_role,
+C.contact_sensitive_indicator,
+C.contact_personal_interest_indicator,
+E.employer_reference_number,
+E.employer_name,
+count(*)
+FROM cap_mi_test.v_financial_account_dim A
+INNER JOIN v_gl_dim BB
+ON upper(trim(A.financial_account_id)) = concat(upper(trim(BB.soc)), upper(trim(BB.glif_references)))
+LEFT JOIN cap_mi_test.v_asset_dim B
+ON A.financial_account_id = B.Key_1
+LEFT JOIN cap_mi_test.v_contact_dim C
+ON B.contact_id = C.contact_id
+LEFT JOIN cap_mi_test.v_contact_role_dim D
+ON B.contact_id = D.contact_id
+AND B.case_id = D.case_id
+LEFT JOIN cap_mi_test.v_employer_dim E
+ON B.owner_accnt_id = E.employer_id
+group by 
+BB.gl_transaction_date,
+A.scheme,
+A.Division,
+BB.gl_branch,
+BB.bancs_account_number,
+A.account_type,
+B.master_case_number_finance,
+C.contact_scin,
+C.contact_name,
+D.Contact_role,
+C.contact_sensitive_indicator,
+C.contact_personal_interest_indicator,
+E.employer_reference_number,
+E.employer_name) AA
+
+-- 758865
+
+Select *
+FROM cap_mi_test.gl_account_daily_aggregated_fact
+Where NOT EXISTS
+(Select *
+FROM
+(Select
+BB.gl_transaction_date,
+A.scheme,
+A.Division,
+BB.gl_branch,
+BB.bancs_account_number,
+A.account_type,
+B.master_case_number_finance,
+C.contact_scin,
+C.contact_name,
+D.Contact_role,
+C.contact_sensitive_indicator,
+C.contact_personal_interest_indicator,
+E.employer_reference_number,
+E.employer_name,
+count(*)
+FROM cap_mi_test.v_financial_account_dim A
+INNER JOIN v_gl_dim BB
+ON upper(trim(A.financial_account_id)) = concat(upper(trim(BB.soc)), upper(trim(BB.glif_references)))
+LEFT JOIN cap_mi_test.v_asset_dim B
+ON A.financial_account_id = B.Key_1
+LEFT JOIN cap_mi_test.v_contact_dim C
+ON B.contact_id = C.contact_id
+LEFT JOIN cap_mi_test.v_contact_role_dim D
+ON B.contact_id = D.contact_id
+AND B.case_id = D.case_id
+LEFT JOIN cap_mi_test.v_employer_dim E
+ON B.owner_accnt_id = E.employer_id
+group by 
+BB.gl_transaction_date,
+A.scheme,
+A.Division,
+BB.gl_branch,
+BB.bancs_account_number,
+A.account_type,
+B.master_case_number_finance,
+C.contact_scin,
+C.contact_name,
+D.Contact_role,
+C.contact_sensitive_indicator,
+C.contact_personal_interest_indicator,
+E.employer_reference_number,
+E.employer_name) AA
+) 
+
+-- 0 Records
+
+
+Select count(*)
+FROM
+--(Select * FROM
+(Select
+BB.gl_transaction_date,
+A.scheme,
+A.Division,
+BB.gl_branch,
+BB.bancs_account_number,
+A.account_type,
+B.master_case_number_finance,
+C.contact_scin,
+C.contact_name,
+D.Contact_role,
+C.contact_sensitive_indicator,
+C.contact_personal_interest_indicator,
+E.employer_reference_number,
+E.employer_name,
+count(*)
+FROM cap_mi_test.v_financial_account_dim A
+INNER JOIN v_gl_dim BB
+ON upper(trim(A.financial_account_id)) = concat(upper(trim(BB.soc)), upper(trim(BB.glif_references)))
+LEFT JOIN cap_mi_test.v_asset_dim B
+ON A.financial_account_id = B.Key_1
+LEFT JOIN cap_mi_test.v_contact_dim C
+ON B.contact_id = C.contact_id
+LEFT JOIN cap_mi_test.v_contact_role_dim D
+ON B.contact_id = D.contact_id
+AND B.case_id = D.case_id
+LEFT JOIN cap_mi_test.v_employer_dim E
+ON B.owner_accnt_id = E.employer_id
+group by 
+BB.gl_transaction_date,
+A.scheme,
+A.Division,
+BB.gl_branch,
+BB.bancs_account_number,
+A.account_type,
+B.master_case_number_finance,
+C.contact_scin,
+C.contact_name,
+D.Contact_role,
+C.contact_sensitive_indicator,
+C.contact_personal_interest_indicator,
+E.employer_reference_number,
+E.employer_name
+)SRC
+INNER JOIN 
+(Select *
+FROM cap_mi_test.gl_account_daily_aggregated_fact
+) TRG
+ON SRC.gl_transaction_date = TRG.gl_transcation_date
+AND SRC.scheme = TRG.scheme
+AND SRC.Division = TRG.Division
+AND SRC.gl_branch = TRG.branch
+AND SRC.bancs_account_number = TRG.bancs_account_number
+AND SRC.account_type = TRG.account_type
+AND NVL(SRC.master_case_number_finance, '0') = NVL(TRG.master_case_number_finance,'0')
+AND NVL(SRC.contact_scin, '0') = NVL(TRG.contact_scin, '0') --  752079
+AND NVL(SRC.contact_name,'0') = NVL(TRG.contact_name,'0')
+AND NVL(SRC.Contact_role,'0') = NVL(TRG.Contact_role,'0')
+AND NVL(SRC.contact_sensitive_indicator,'0') = NVL(TRG.contact_sensitive_indicator,'0')
+AND NVL(SRC.contact_personal_interest_indicator,'0') = NVL(TRG.contact_personal_interest_indicator,'0')
+AND NVL(SRC.employer_reference_number,0) = NVL(TRG.employer_reference_number,0)
+AND NVL(SRC.employer_name,'0') = NVL(TRG.employer_name,'0')
+
+-- 758865
+
+-- Measure Validation
+
+
+-- Unmatched Records
+
+
+Select 
+count(*)
+FROM
+(Select
+gl_transaction_date,
+scheme,
+Division,
+gl_branch,
+bancs_account_number,
+account_type,
+master_case_number_finance,
+contact_scin,
+contact_name,
+Contact_role,
+contact_sensitive_indicator,
+contact_personal_interest_indicator,
+employer_reference_number,
+employer_name,
+SUM(NRP_Child_Maintenance_Liability_Charge) AS Aggregate_value_of_NRP_Child_Maintenance_Liability_Charge,
+SUM(NRP_Residual_Arrears_Transitioned) AS Aggregate_value_of_NRP_Residual_Arrears_Transitioned,
+SUM(Non_Child_Maintenance_Charged) AS Aggregate_value_of_Non_Child_Maintenance_Charged,
+SUM(NRP_Direct_Pay_Maintenance_Charged) AS Aggregate_value_of_NRP_Direct_Pay_Maintenance_Charged,
+SUM(NRP_Enforcement_Charges) AS Aggregate_value_of_NRP_Enforcement_Charges,
+SUM(NRP_Collection_Charges) AS Aggregate_value_of_NRP_Collection_Charges,
+SUM(PWC_Direct_Pay_Maintenance_Charged) AS Aggregate_value_of_PWC_Direct_Pay_Maintenance_Charged,
+SUM(PWC_Child_Maintenance_Liability_Charged) AS Aggregate_value_of_PWC_Child_Maintenance_Liability_Charged,
+SUM(PWC_Residual_Arrears_Transitioned) AS Aggregate_value_of_PWC_Residual_Arrears_Transitioned,
+SUM(Ongoing_Child_Maintenance_Cash_Received) AS Aggregate_value_of_Ongoing_Child_Maintenance_Cash_Received,
+SUM(Residual_Arrears_Cash_Received) AS Aggregate_value_of_Residual_Arrears_Cash_Received,
+SUM(NRP_Enforcement_Charge_Cash_Received) AS Aggregate_value_of_NRP_Enforcement_Charge_Cash_Received,
+SUM(NRP_Collection_Cash_Received) AS Aggregate_value_of_NRP_Collection_Cash_Received,
+SUM(Residual_Arrears_Cash_Paid) AS Aggregate_value_of_Residual_Arrears_Cash_Paid,
+SUM(Child_Maintenance_Cash_Paid) AS Aggregate_value_of_Child_Maintenance_Cash_Paid,
+SUM(Cash_Refunds_Paid_to_NRP) AS Aggregate_value_of_Cash_Refunds_Paid_to_NRP,
+SUM(PWC_Payment_Charges_Paid) AS Aggregate_value_of_PWC_Payment_Charges_Paid,
+SUM(Non_Cash_Receipt) AS Aggregate_value_of_Non_Cash_Receipt,
+SUM(Residual_Arrears_Non_Cash_Receipt) AS Aggregate_value_of_Residual_Arrears_Non_Cash_Receipt,
+SUM(Pay_Non_Cash_Payment) AS Aggregate_value_of_Non_Cash_Payment,
+SUM(Residual_Arrears_Non_Cash_Payment) AS Aggregate_value_of_Residual_Arrears_Non_Cash_Payment,
+SUM(NRP_Direct_Pay_Receipt) AS Aggregate_value_of_NRP_Direct_Pay_Receipt,
+SUM(PWC_Direct_Pay_Payment) AS Aggregate_value_of_PWC_Direct_Pay_Payment,
+SUM(Write_OFFs_NRP) AS Aggregate_value_of_Write_OFFs_NRP,
+SUM(NRP_Coll_Charges_Written_off) AS Aggregate_value_of_NRP_Coll_Charges_Written_off,
+SUM(NRP_Enforcement_Write_off) AS Aggregate_value_of_NRP_Enforcement_Write_off,
+SUM(CMG_Cost_Written_off) AS Aggregate_value_of_CMG_Cost_Written_off,
+SUM(SoS_Liabilities_Written_off) AS Aggregate_value_of_SoS_Liabilities_Written_off,
+SUM(Residual_Arrears_Written_off_NRP) AS Aggregate_value_of_Residual_Arrears_Written_off_NRP,
+SUM(Write_off_PWC) AS Aggregate_value_of_Write_off_PWC,
+SUM(Legacy_Write_off_PWC) AS Aggregate_value_of_Legacy_Write_off_PWC
+From
+(Select
+BB.gl_transaction_date,
+A.scheme,
+A.Division,
+BB.gl_branch,
+BB.bancs_account_number,
+A.account_type,
+B.master_case_number_finance,
+C.contact_scin,
+C.contact_name,
+D.Contact_role,
+C.contact_sensitive_indicator,
+C.contact_personal_interest_indicator,
+E.employer_reference_number,
+E.employer_name,
+CASE WHEN GL_CODE = '10001' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS NRP_Child_Maintenance_Liability_Charge,
+CASE WHEN GL_CODE in ('90002', '90022', '90032') THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS NRP_Residual_Arrears_Transitioned,
+CASE WHEN GL_CODE = '10002' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS Non_Child_Maintenance_Charged,
+CASE WHEN GL_CODE = '10003' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS NRP_Direct_Pay_Maintenance_Charged,
+CASE WHEN GL_CODE in ('10210', '10211', '10212', '10213') THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS NRP_Enforcement_Charges,
+CASE WHEN GL_CODE = '10200' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS NRP_Collection_Charges, 
+CASE WHEN GL_CODE = '11002' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS PWC_Direct_Pay_Maintenance_Charged,
+CASE WHEN GL_CODE = '11001' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS PWC_Child_Maintenance_Liability_Charged,
+CASE WHEN GL_CODE in ('90005', '90025', '90035')THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS PWC_Residual_Arrears_Transitioned,
+CASE WHEN GL_CODE = '10004' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS Ongoing_Child_Maintenance_Cash_Received,
+CASE WHEN GL_CODE = '10020' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS Residual_Arrears_Cash_Received,
+CASE WHEN GL_CODE in ('10310', '10311', '10312', '10313') THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS NRP_Enforcement_Charge_Cash_Received,
+CASE WHEN GL_CODE = '10300' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS NRP_Collection_Cash_Received, 
+CASE WHEN GL_CODE = '11020' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS Residual_Arrears_Cash_Paid,
+CASE WHEN GL_CODE = '11003' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS Child_Maintenance_Cash_Paid,
+CASE WHEN GL_CODE = '10009' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS Cash_Refunds_Paid_to_NRP,
+CASE WHEN GL_CODE = '11200' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS PWC_Payment_Charges_Paid,
+CASE WHEN GL_CODE = '10008' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS Non_Cash_Receipt,
+CASE WHEN GL_CODE = '10018' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS Residual_Arrears_Non_Cash_Receipt,
+CASE WHEN GL_CODE = '11008' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS Pay_Non_Cash_Payment,
+CASE WHEN GL_CODE = '11018' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS Residual_Arrears_Non_Cash_Payment,
+CASE WHEN GL_CODE = '10006' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS NRP_Direct_Pay_Receipt,
+CASE WHEN GL_CODE = '11004' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS PWC_Direct_Pay_Payment,
+CASE WHEN GL_CODE = '10007' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS Write_OFFs_NRP,
+CASE WHEN GL_CODE = '10201' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS NRP_Coll_Charges_Written_off,
+CASE WHEN GL_CODE in ('10214', '10215', '10216', '10217')THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS NRP_Enforcement_Write_off,
+CASE WHEN GL_CODE = '15013' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS CMG_Cost_Written_off,
+CASE WHEN GL_CODE = '11211' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS SoS_Liabilities_Written_off,
+CASE WHEN GL_CODE = '10011' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS Residual_Arrears_Written_off_NRP,
+CASE WHEN GL_CODE = '11005' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS Write_off_PWC,
+CASE WHEN GL_CODE = '11006' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS Legacy_Write_off_PWC
+FROM cap_mi_test.v_financial_account_dim A
+INNER JOIN v_gl_dim BB
+ON upper(trim(A.financial_account_id)) = concat(upper(trim(BB.soc)), upper(trim(BB.glif_references)))
+LEFT JOIN cap_mi_test.v_asset_dim B
+ON A.financial_account_id = B.Key_1
+LEFT JOIN cap_mi_test.v_contact_dim C
+ON B.contact_id = C.contact_id
+LEFT JOIN cap_mi_test.v_contact_role_dim D
+ON B.contact_id = D.contact_id
+AND B.case_id = D.case_id
+LEFT JOIN cap_mi_test.v_employer_dim E
+ON B.owner_accnt_id = E.employer_id) SRC
+group by 
+gl_transaction_date,
+scheme,
+Division,
+gl_branch,
+bancs_account_number,
+account_type,
+master_case_number_finance,
+contact_scin,
+contact_name,
+Contact_role,
+contact_sensitive_indicator,
+contact_personal_interest_indicator,
+employer_reference_number,
+employer_name) SRC
+INNER JOIN 
+(Select *
+FROM cap_mi_test.gl_account_daily_aggregated_fact ) TRG
+ON SRC.gl_transaction_date = TRG.gl_transcation_date
+AND SRC.scheme = TRG.scheme
+AND SRC.Division = TRG.Division
+AND SRC.gl_branch = TRG.branch
+AND SRC.bancs_account_number = TRG.bancs_account_number
+AND SRC.account_type = TRG.account_type
+AND NVL(SRC.master_case_number_finance, '0') = NVL(TRG.master_case_number_finance,'0')
+AND NVL(SRC.contact_scin, '0') = NVL(TRG.contact_scin, '0') --  752079
+AND NVL(SRC.contact_name,'0') = NVL(TRG.contact_name,'0')
+AND NVL(SRC.Contact_role,'0') = NVL(TRG.Contact_role,'0')
+AND NVL(SRC.contact_sensitive_indicator,'0') = NVL(TRG.contact_sensitive_indicator,'0')
+AND NVL(SRC.contact_personal_interest_indicator,'0') = NVL(TRG.contact_personal_interest_indicator,'0')
+AND NVL(SRC.employer_reference_number,0) = NVL(TRG.employer_reference_number,0)
+AND NVL(SRC.employer_name,'0') = NVL(TRG.employer_name,'0')
+AND (round(SRC.Aggregate_value_of_NRP_Child_Maintenance_Liability_Charge ,2) <> round(Aggregate_value_of_NRP_Child_Maintenance_Liability_Charged,2)
+or round(SRC.aggregate_value_of_nrp_residual_arrears_transitioned,2) <> round(TRG.aggregate_value_of_nrp_residual_arrears_transitioned,2)
+or round(SRC.aggregate_value_of_non_child_maintenance_charged,2) <> round(TRG.aggregate_value_of_non_child_maintenance_charged,2)
+or round(SRC.aggregate_value_of_nrp_direct_pay_maintenance_charged,2) <> round(TRG.aggregate_value_of_nrp_direct_pay_maintenance_charged,2)
+or round(SRC.aggregate_value_of_nrp_enforcement_charges,2) <> round(TRG.aggregate_value_of_nrp_enforcement_charges,2)
+or round(SRC.aggregate_value_of_nrp_collection_charges,2) <> round(TRG.aggregate_value_of_nrp_collection_charges,2)
+or round(SRC.aggregate_value_of_pwc_direct_pay_maintenance_charged,2) <> round(TRG.aggregate_value_of_pwc_direct_pay_maintenance_charged,2)
+or round(SRC.aggregate_value_of_pwc_child_maintenance_liability_charged,2) <> round(TRG.aggregate_value_of_pwc_child_maintenance_liability_charged,2)---
+or round(SRC.aggregate_value_of_pwc_residual_arrears_transitioned,2) <> round(TRG.aggregate_value_of_pwc_residual_arrears_transitioned,2)
+or round(SRC.aggregate_value_of_ongoing_child_maintenance_cash_received,2) <> round(TRG.aggregate_value_of_ongoing_child_maintenance_cash_received,2)
+OR round(SRC.aggregate_value_of_residual_arrears_cash_received,2) <> round(TRG.aggregate_value_of_residual_arrears_cash_received,2)
+or round(SRC.aggregate_value_of_nrp_enforcement_charge_cash_received,2) <> round(TRG.aggregate_value_of_nrp_enforcement_charge_cash_received,2)
+or round(SRC.aggregate_value_of_nrp_collection_cash_received,2) <> round(TRG.aggregate_value_of_nrp_collection_cash_received,2)
+or round(SRC.aggregate_value_of_residual_arrears_cash_paid,2) <> round(TRG.aggregate_value_of_residual_arrears_cash_paid,2)
+or round(SRC.aggregate_value_of_child_maintenance_cash_paid,2) <> round(TRG.aggregate_value_of_child_maintenance_cash_paid,2)
+or round(SRC.aggregate_value_of_cash_refunds_paid_to_nrp,2) <> round(TRG.aggregate_value_of_cash_refunds_paid_to_nrp,2)
+OR round(SRC.aggregate_value_of_pwc_payment_charges_paid,2) <> round(TRG.aggregate_value_of_pwc_payment_charges_paid,2)
+Or round(SRC.aggregate_value_of_non_cash_receipt,2) <> round(TRG.aggregate_value_of_non_cash_receipt,2)
+Or round(SRC.aggregate_value_of_residual_arrears_non_cash_receipt,2) <> round(TRG.aggregate_value_of_residual_arrears_non_cash_receipt,2)
+or round(SRC.aggregate_value_of_non_cash_payment,2) <> round(TRG.aggregate_value_of_non_cash_payment,2)
+or round(SRC.aggregate_value_of_residual_arrears_non_cash_payment,2) <> round(TRG.aggregate_value_of_residual_arrears_non_cash_payment,2)
+or round(SRC.aggregate_value_of_nrp_direct_pay_receipt,2) <> round(TRG.aggregate_value_of_nrp_direct_pay_receipt,2)
+or round(SRC.aggregate_value_of_pwc_direct_pay_payment,2) <> round(TRG.aggregate_value_of_pwc_direct_pay_payment,2)
+or round(SRC.aggregate_value_of_write_offs_nrp,2) <> round(TRG.aggregate_value_of_write_offs_nrp,2)
+or round(SRC.aggregate_value_of_nrp_coll_charges_written_off,2) <> round(TRG.aggregate_value_of_nrp_coll_charges_written_off,2)
+or round(SRC.aggregate_value_of_nrp_enforcement_write_off,2) <> round(TRG.aggregate_value_of_nrp_enforcement_write_off,2)
+or round(SRC.aggregate_value_of_cmg_cost_written_off,2) <> round(TRG.aggregate_value_of_cmg_cost_written_off,2)
+or round(SRC.aggregate_value_of_sos_liabilities_written_off,2) <> round(TRG.aggregate_value_of_sos_liabilities_written_off,2)
+or round(SRC.aggregate_value_of_residual_arrears_written_off_nrp,2) <> round(TRG.aggregate_value_of_residual_arrears_written_off_nrp,2)
+or round(SRC.aggregate_value_of_write_off_pwc,2) <> round(TRG.aggregate_value_of_write_off_pwc,2)
+or round(SRC.aggregate_value_of_legacy_write_off_pwc,2) <> round(TRG.aggregate_value_of_legacy_write_off_pwc,2))
+
+
+-- 0 Records Rerurned
+
+-- Matching Records
+
+Select 
+count(*)
+FROM
+(Select
+gl_transaction_date,
+scheme,
+Division,
+gl_branch,
+bancs_account_number,
+account_type,
+master_case_number_finance,
+contact_scin,
+contact_name,
+Contact_role,
+contact_sensitive_indicator,
+contact_personal_interest_indicator,
+employer_reference_number,
+employer_name,
+SUM(NRP_Child_Maintenance_Liability_Charge) AS Aggregate_value_of_NRP_Child_Maintenance_Liability_Charge,
+SUM(NRP_Residual_Arrears_Transitioned) AS Aggregate_value_of_NRP_Residual_Arrears_Transitioned,
+SUM(Non_Child_Maintenance_Charged) AS Aggregate_value_of_Non_Child_Maintenance_Charged,
+SUM(NRP_Direct_Pay_Maintenance_Charged) AS Aggregate_value_of_NRP_Direct_Pay_Maintenance_Charged,
+SUM(NRP_Enforcement_Charges) AS Aggregate_value_of_NRP_Enforcement_Charges,
+SUM(NRP_Collection_Charges) AS Aggregate_value_of_NRP_Collection_Charges,
+SUM(PWC_Direct_Pay_Maintenance_Charged) AS Aggregate_value_of_PWC_Direct_Pay_Maintenance_Charged,
+SUM(PWC_Child_Maintenance_Liability_Charged) AS Aggregate_value_of_PWC_Child_Maintenance_Liability_Charged,
+SUM(PWC_Residual_Arrears_Transitioned) AS Aggregate_value_of_PWC_Residual_Arrears_Transitioned,
+SUM(Ongoing_Child_Maintenance_Cash_Received) AS Aggregate_value_of_Ongoing_Child_Maintenance_Cash_Received,
+SUM(Residual_Arrears_Cash_Received) AS Aggregate_value_of_Residual_Arrears_Cash_Received,
+SUM(NRP_Enforcement_Charge_Cash_Received) AS Aggregate_value_of_NRP_Enforcement_Charge_Cash_Received,
+SUM(NRP_Collection_Cash_Received) AS Aggregate_value_of_NRP_Collection_Cash_Received,
+SUM(Residual_Arrears_Cash_Paid) AS Aggregate_value_of_Residual_Arrears_Cash_Paid,
+SUM(Child_Maintenance_Cash_Paid) AS Aggregate_value_of_Child_Maintenance_Cash_Paid,
+SUM(Cash_Refunds_Paid_to_NRP) AS Aggregate_value_of_Cash_Refunds_Paid_to_NRP,
+SUM(PWC_Payment_Charges_Paid) AS Aggregate_value_of_PWC_Payment_Charges_Paid,
+SUM(Non_Cash_Receipt) AS Aggregate_value_of_Non_Cash_Receipt,
+SUM(Residual_Arrears_Non_Cash_Receipt) AS Aggregate_value_of_Residual_Arrears_Non_Cash_Receipt,
+SUM(Pay_Non_Cash_Payment) AS Aggregate_value_of_Non_Cash_Payment,
+SUM(Residual_Arrears_Non_Cash_Payment) AS Aggregate_value_of_Residual_Arrears_Non_Cash_Payment,
+SUM(NRP_Direct_Pay_Receipt) AS Aggregate_value_of_NRP_Direct_Pay_Receipt,
+SUM(PWC_Direct_Pay_Payment) AS Aggregate_value_of_PWC_Direct_Pay_Payment,
+SUM(Write_OFFs_NRP) AS Aggregate_value_of_Write_OFFs_NRP,
+SUM(NRP_Coll_Charges_Written_off) AS Aggregate_value_of_NRP_Coll_Charges_Written_off,
+SUM(NRP_Enforcement_Write_off) AS Aggregate_value_of_NRP_Enforcement_Write_off,
+SUM(CMG_Cost_Written_off) AS Aggregate_value_of_CMG_Cost_Written_off,
+SUM(SoS_Liabilities_Written_off) AS Aggregate_value_of_SoS_Liabilities_Written_off,
+SUM(Residual_Arrears_Written_off_NRP) AS Aggregate_value_of_Residual_Arrears_Written_off_NRP,
+SUM(Write_off_PWC) AS Aggregate_value_of_Write_off_PWC,
+SUM(Legacy_Write_off_PWC) AS Aggregate_value_of_Legacy_Write_off_PWC
+From
+(Select
+BB.gl_transaction_date,
+A.scheme,
+A.Division,
+BB.gl_branch,
+BB.bancs_account_number,
+A.account_type,
+B.master_case_number_finance,
+C.contact_scin,
+C.contact_name,
+D.Contact_role,
+C.contact_sensitive_indicator,
+C.contact_personal_interest_indicator,
+E.employer_reference_number,
+E.employer_name,
+CASE WHEN GL_CODE = '10001' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS NRP_Child_Maintenance_Liability_Charge,
+CASE WHEN GL_CODE in ('90002', '90022', '90032') THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS NRP_Residual_Arrears_Transitioned,
+CASE WHEN GL_CODE = '10002' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS Non_Child_Maintenance_Charged,
+CASE WHEN GL_CODE = '10003' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS NRP_Direct_Pay_Maintenance_Charged,
+CASE WHEN GL_CODE in ('10210', '10211', '10212', '10213') THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS NRP_Enforcement_Charges,
+CASE WHEN GL_CODE = '10200' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS NRP_Collection_Charges, 
+CASE WHEN GL_CODE = '11002' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS PWC_Direct_Pay_Maintenance_Charged,
+CASE WHEN GL_CODE = '11001' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS PWC_Child_Maintenance_Liability_Charged,
+CASE WHEN GL_CODE in ('90005', '90025', '90035')THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS PWC_Residual_Arrears_Transitioned,
+CASE WHEN GL_CODE = '10004' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS Ongoing_Child_Maintenance_Cash_Received,
+CASE WHEN GL_CODE = '10020' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS Residual_Arrears_Cash_Received,
+CASE WHEN GL_CODE in ('10310', '10311', '10312', '10313') THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS NRP_Enforcement_Charge_Cash_Received,
+CASE WHEN GL_CODE = '10300' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS NRP_Collection_Cash_Received, 
+CASE WHEN GL_CODE = '11020' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS Residual_Arrears_Cash_Paid,
+CASE WHEN GL_CODE = '11003' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS Child_Maintenance_Cash_Paid,
+CASE WHEN GL_CODE = '10009' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS Cash_Refunds_Paid_to_NRP,
+CASE WHEN GL_CODE = '11200' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS PWC_Payment_Charges_Paid,
+CASE WHEN GL_CODE = '10008' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS Non_Cash_Receipt,
+CASE WHEN GL_CODE = '10018' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS Residual_Arrears_Non_Cash_Receipt,
+CASE WHEN GL_CODE = '11008' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS Pay_Non_Cash_Payment,
+CASE WHEN GL_CODE = '11018' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS Residual_Arrears_Non_Cash_Payment,
+CASE WHEN GL_CODE = '10006' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS NRP_Direct_Pay_Receipt,
+CASE WHEN GL_CODE = '11004' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS PWC_Direct_Pay_Payment,
+CASE WHEN GL_CODE = '10007' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS Write_OFFs_NRP,
+CASE WHEN GL_CODE = '10201' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS NRP_Coll_Charges_Written_off,
+CASE WHEN GL_CODE in ('10214', '10215', '10216', '10217')THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS NRP_Enforcement_Write_off,
+CASE WHEN GL_CODE = '15013' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS CMG_Cost_Written_off,
+CASE WHEN GL_CODE = '11211' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS SoS_Liabilities_Written_off,
+CASE WHEN GL_CODE = '10011' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS Residual_Arrears_Written_off_NRP,
+CASE WHEN GL_CODE = '11005' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS Write_off_PWC,
+CASE WHEN GL_CODE = '11006' THEN GL_TRANSACTION_AMOUNT ELSE 0 END AS Legacy_Write_off_PWC
+FROM cap_mi_test.v_financial_account_dim A
+INNER JOIN v_gl_dim BB
+ON upper(trim(A.financial_account_id)) = concat(upper(trim(BB.soc)), upper(trim(BB.glif_references)))
+LEFT JOIN cap_mi_test.v_asset_dim B
+ON A.financial_account_id = B.Key_1
+LEFT JOIN cap_mi_test.v_contact_dim C
+ON B.contact_id = C.contact_id
+LEFT JOIN cap_mi_test.v_contact_role_dim D
+ON B.contact_id = D.contact_id
+AND B.case_id = D.case_id
+LEFT JOIN cap_mi_test.v_employer_dim E
+ON B.owner_accnt_id = E.employer_id) SRC
+group by 
+gl_transaction_date,
+scheme,
+Division,
+gl_branch,
+bancs_account_number,
+account_type,
+master_case_number_finance,
+contact_scin,
+contact_name,
+Contact_role,
+contact_sensitive_indicator,
+contact_personal_interest_indicator,
+employer_reference_number,
+employer_name) SRC
+INNER JOIN 
+(Select *
+FROM cap_mi_test.gl_account_daily_aggregated_fact ) TRG
+ON SRC.gl_transaction_date = TRG.gl_transcation_date
+AND SRC.scheme = TRG.scheme
+AND SRC.Division = TRG.Division
+AND SRC.gl_branch = TRG.branch
+AND SRC.bancs_account_number = TRG.bancs_account_number
+AND SRC.account_type = TRG.account_type
+AND NVL(SRC.master_case_number_finance, '0') = NVL(TRG.master_case_number_finance,'0')
+AND NVL(SRC.contact_scin, '0') = NVL(TRG.contact_scin, '0') --  752079
+AND NVL(SRC.contact_name,'0') = NVL(TRG.contact_name,'0')
+AND NVL(SRC.Contact_role,'0') = NVL(TRG.Contact_role,'0')
+AND NVL(SRC.contact_sensitive_indicator,'0') = NVL(TRG.contact_sensitive_indicator,'0')
+AND NVL(SRC.contact_personal_interest_indicator,'0') = NVL(TRG.contact_personal_interest_indicator,'0')
+AND NVL(SRC.employer_reference_number,0) = NVL(TRG.employer_reference_number,0)
+AND NVL(SRC.employer_name,'0') = NVL(TRG.employer_name,'0')
+AND round(SRC.Aggregate_value_of_NRP_Child_Maintenance_Liability_Charge ,2) = round(Aggregate_value_of_NRP_Child_Maintenance_Liability_Charged,2)
+AND round(SRC.aggregate_value_of_nrp_residual_arrears_transitioned,2) = round(TRG.aggregate_value_of_nrp_residual_arrears_transitioned,2)
+AND round(SRC.aggregate_value_of_non_child_maintenance_charged,2) = round(TRG.aggregate_value_of_non_child_maintenance_charged,2)
+AND round(SRC.aggregate_value_of_nrp_direct_pay_maintenance_charged,2) = round(TRG.aggregate_value_of_nrp_direct_pay_maintenance_charged,2)
+AND round(SRC.aggregate_value_of_nrp_enforcement_charges,2) = round(TRG.aggregate_value_of_nrp_enforcement_charges,2)
+AND round(SRC.aggregate_value_of_nrp_collection_charges,2) = round(TRG.aggregate_value_of_nrp_collection_charges,2)
+AND round(SRC.aggregate_value_of_pwc_direct_pay_maintenance_charged,2) = round(TRG.aggregate_value_of_pwc_direct_pay_maintenance_charged,2)
+AND round(SRC.aggregate_value_of_pwc_child_maintenance_liability_charged,2) = round(TRG.aggregate_value_of_pwc_child_maintenance_liability_charged,2)---
+AND round(SRC.aggregate_value_of_pwc_residual_arrears_transitioned,2) = round(TRG.aggregate_value_of_pwc_residual_arrears_transitioned,2)
+AND round(SRC.aggregate_value_of_ongoing_child_maintenance_cash_received,2) = round(TRG.aggregate_value_of_ongoing_child_maintenance_cash_received,2)
+AND round(SRC.aggregate_value_of_residual_arrears_cash_received,2) = round(TRG.aggregate_value_of_residual_arrears_cash_received,2)
+AND round(SRC.aggregate_value_of_nrp_enforcement_charge_cash_received,2) = round(TRG.aggregate_value_of_nrp_enforcement_charge_cash_received,2)
+AND round(SRC.aggregate_value_of_nrp_collection_cash_received,2) = round(TRG.aggregate_value_of_nrp_collection_cash_received,2)
+AND round(SRC.aggregate_value_of_residual_arrears_cash_paid,2) = round(TRG.aggregate_value_of_residual_arrears_cash_paid,2)
+AND round(SRC.aggregate_value_of_child_maintenance_cash_paid,2) = round(TRG.aggregate_value_of_child_maintenance_cash_paid,2)
+AND round(SRC.aggregate_value_of_cash_refunds_paid_to_nrp,2) = round(TRG.aggregate_value_of_cash_refunds_paid_to_nrp,2)
+AND round(SRC.aggregate_value_of_pwc_payment_charges_paid,2) = round(TRG.aggregate_value_of_pwc_payment_charges_paid,2)
+AND round(SRC.aggregate_value_of_non_cash_receipt,2) = round(TRG.aggregate_value_of_non_cash_receipt,2)
+AND round(SRC.aggregate_value_of_residual_arrears_non_cash_receipt,2) = round(TRG.aggregate_value_of_residual_arrears_non_cash_receipt,2)
+AND round(SRC.aggregate_value_of_non_cash_payment,2) = round(TRG.aggregate_value_of_non_cash_payment,2)
+AND round(SRC.aggregate_value_of_residual_arrears_non_cash_payment,2) = round(TRG.aggregate_value_of_residual_arrears_non_cash_payment,2)
+AND round(SRC.aggregate_value_of_nrp_direct_pay_receipt,2) = round(TRG.aggregate_value_of_nrp_direct_pay_receipt,2)
+AND round(SRC.aggregate_value_of_pwc_direct_pay_payment,2) = round(TRG.aggregate_value_of_pwc_direct_pay_payment,2)
+AND round(SRC.aggregate_value_of_write_offs_nrp,2) = round(TRG.aggregate_value_of_write_offs_nrp,2)
+AND round(SRC.aggregate_value_of_nrp_coll_charges_written_off,2) = round(TRG.aggregate_value_of_nrp_coll_charges_written_off,2)
+AND round(SRC.aggregate_value_of_nrp_enforcement_write_off,2) = round(TRG.aggregate_value_of_nrp_enforcement_write_off,2)
+AND round(SRC.aggregate_value_of_cmg_cost_written_off,2) = round(TRG.aggregate_value_of_cmg_cost_written_off,2)
+AND round(SRC.aggregate_value_of_sos_liabilities_written_off,2) = round(TRG.aggregate_value_of_sos_liabilities_written_off,2)
+AND round(SRC.aggregate_value_of_residual_arrears_written_off_nrp,2) = round(TRG.aggregate_value_of_residual_arrears_written_off_nrp,2)
+AND round(SRC.aggregate_value_of_write_off_pwc,2) = round(TRG.aggregate_value_of_write_off_pwc,2)
+AND round(SRC.aggregate_value_of_legacy_write_off_pwc,2) = round(TRG.aggregate_value_of_legacy_write_off_pwc,2)
+
+-- 758865
+
+
+Select max(aggregate_value_of_nrp_child_maintenance_liability_charged) FROM cap_mi_test.gl_account_daily_aggregated_fact --20408.719999999998
+Select max(aggregate_value_of_nrp_residual_arrears_transitioned) FROM cap_mi_test.gl_account_daily_aggregated_fact -- 9002000
+Select max(aggregate_value_of_non_child_maintenance_charged) FROM cap_mi_test.gl_account_daily_aggregated_fact --  2020588
+Select max(aggregate_value_of_nrp_direct_pay_maintenance_charged) FROM cap_mi_test.gl_account_daily_aggregated_fact -- 20000
+Select max(aggregate_value_of_nrp_enforcement_charges) FROM cap_mi_test.gl_account_daily_aggregated_fact -- 3200
+Select max(aggregate_value_of_nrp_collection_charges) FROM cap_mi_test.gl_account_daily_aggregated_fact --1999.01
+Select max(aggregate_value_of_pwc_direct_pay_maintenance_charged) FROM cap_mi_test.gl_account_daily_aggregated_fact -- 11401.920000000006
+Select max(aggregate_value_of_pwc_child_maintenance_liability_charged) FROM cap_mi_test.gl_account_daily_aggregated_fact  -- 45584.14000000009
+Select max(aggregate_value_of_pwc_residual_arrears_transitioned) FROM cap_mi_test.gl_account_daily_aggregated_fact  -- 60000
+Select max(aggregate_value_of_ongoing_child_maintenance_cash_received) FROM cap_mi_test.gl_account_daily_aggregated_fact  -- 87000
+Select max(aggregate_value_of_residual_arrears_cash_received) FROM cap_mi_test.gl_account_daily_aggregated_fact -- 0
+Select max(aggregate_value_of_nrp_enforcement_charge_cash_received) FROM cap_mi_test.gl_account_daily_aggregated_fact -- 0
+Select max(aggregate_value_of_nrp_collection_cash_received) FROM cap_mi_test.gl_account_daily_aggregated_fact -- 0
+Select max(aggregate_value_of_residual_arrears_cash_paid) FROM cap_mi_test.gl_account_daily_aggregated_fact  -- 8700
+Select max(aggregate_value_of_child_maintenance_cash_paid) FROM cap_mi_test.gl_account_daily_aggregated_fact  -- 180646.40000000002
+Select max(aggregate_value_of_cash_refunds_paid_to_nrp) FROM cap_mi_test.gl_account_daily_aggregated_fact -- 16412.59
+Select max(aggregate_value_of_pwc_payment_charges_paid) FROM cap_mi_test.gl_account_daily_aggregated_fact  -- 539.8599999999997
+Select max(aggregate_value_of_non_cash_receipt) FROM cap_mi_test.gl_account_daily_aggregated_fact -- 2.842170943040401e-14
+Select max(aggregate_value_of_residual_arrears_non_cash_receipt) FROM cap_mi_test.gl_account_daily_aggregated_fact -- 0
+Select max(aggregate_value_of_non_cash_payment) FROM cap_mi_test.gl_account_daily_aggregated_fact  -- 20000
+Select max(aggregate_value_of_residual_arrears_non_cash_payment) FROM cap_mi_test.gl_account_daily_aggregated_fact  -- 5000
+Select max(aggregate_value_of_nrp_direct_pay_receipt) FROM cap_mi_test.gl_account_daily_aggregated_fact  -- 1748.76
+Select max(aggregate_value_of_pwc_direct_pay_payment) FROM cap_mi_test.gl_account_daily_aggregated_fact  -- 7070.05
+Select max(aggregate_value_of_write_offs_nrp) FROM cap_mi_test.gl_account_daily_aggregated_fact -- 1229.9499999999998
+Select max(aggregate_value_of_nrp_coll_charges_written_of) FROM cap_mi_test.gl_account_daily_aggregated_fact  --0
+Select max(aggregate_value_of_nrp_enforcement_write_off) FROM cap_mi_test.gl_account_daily_aggregated_fact  --0
+Select max(aggregate_value_of_cmg_cost_written_off) FROM cap_mi_test.gl_account_daily_aggregated_fact  --0
+Select max(aggregate_value_of_sos_liabilities_written_off) FROM cap_mi_test.gl_account_daily_aggregated_fact  -- 154
+Select max(aggregate_value_of_residual_arrears_written_of_nrp) FROM cap_mi_test.gl_account_daily_aggregated_fact -- 550
+Select max(aggregate_value_of_write_off_pwc) FROM cap_mi_test.gl_account_daily_aggregated_fact  --1229.9499999999998
+Select max(aggregate_value_of_legacy_write_off_pwc) FROM cap_mi_test.gl_account_daily_aggregated_fact  --1200

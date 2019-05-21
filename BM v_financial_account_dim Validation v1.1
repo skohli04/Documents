@@ -1,0 +1,354 @@
+v_financial_account_dim 
+=====================================
+=====================================
+
+
+SHOW CREATE TABLE v_financial_account_dim 
+
+-- Record Count
+
+Select count(*)
+FROM
+(Select * FROM Bancs_base.INVM 
+WHERE Upper(trim(current_flg)) = 'Y') B
+INNER JOIN
+(Select * FROM Bancs_base.DEPP 
+WHERE Upper(trim(current_flg)) = 'Y') C
+ON B.acct_type = C.type
+AND B.int_cat = C.int_cat
+
+
+-- 51046
+
+Select counT(*)
+FROM cap_mi_test.v_financial_account_dim
+
+-- 51046
+
+-- Record validation
+
+Financial Account ID
+======================
+
+Select count(*)
+FROM
+(Select
+B.key_1 AS gl_transcation_id
+FROM
+(Select * FROM Bancs_base.INVM 
+WHERE Upper(trim(current_flg)) = 'Y') B
+INNER JOIN
+(Select * FROM Bancs_base.DEPP 
+WHERE Upper(trim(current_flg)) = 'Y') C
+ON B.acct_type = C.type
+AND B.int_cat = C.int_cat) AA
+INNER JOIN cap_mi_test.v_financial_account_dim BB
+ON AA.financial_account_id = BB.financial_account_id
+
+-- 51046
+
+
+
+SCHEME
+=======
+
+Select counT(*)
+FROM cap_mi_test.v_financial_account_dim
+
+-- 51046
+
+Select count(*)
+FROM
+(Select
+B.Key_1 AS financial_account_ID,
+CASE    WHEN SUBSTR(C.ACCT_SCHEME_TYP, 4,1) = '1' THEN 'FS'
+        WHEN SUBSTR(C.ACCT_SCHEME_TYP, 4,1) = '2' THEN 'RB'
+        ELSE SUBSTR(C.ACCT_SCHEME_TYP, 4,1) 
+        END AS Scheme
+FROM
+(Select * FROM Bancs_base.INVM 
+WHERE Upper(trim(current_flg)) = 'Y') B
+INNER JOIN
+(Select * FROM Bancs_base.DEPP 
+WHERE Upper(trim(current_flg)) = 'Y') C
+ON B.acct_type = C.type
+AND B.int_cat = C.int_cat) AA
+INNER JOIN cap_mi_test.v_financial_account_dim BB
+ON AA.financial_account_ID = BB.financial_account_ID
+
+--51046
+
+-- Matching Records
+
+Select count(*)
+FROM
+(Select
+B.Key_1 AS financial_account_ID,
+CASE    WHEN SUBSTR(C.ACCT_SCHEME_TYP, 4,1) = '1' THEN 'FS'
+        WHEN SUBSTR(C.ACCT_SCHEME_TYP, 4,1) = '2' THEN 'RB'
+        ELSE SUBSTR(C.ACCT_SCHEME_TYP, 4,1) 
+        END AS Scheme
+FROM
+(Select * FROM Bancs_base.INVM 
+WHERE Upper(trim(current_flg)) = 'Y') B
+INNER JOIN
+(Select * FROM Bancs_base.DEPP 
+WHERE Upper(trim(current_flg)) = 'Y') C
+ON B.acct_type = C.type
+AND B.int_cat = C.int_cat) AA
+INNER JOIN cap_mi_test.v_financial_account_dim BB
+ON AA.financial_account_ID = BB.financial_account_ID
+AND AA.SCHEME = BB.SCHEME
+
+--51046
+
+-- Unmatched Records
+
+Select count(*)
+FROM
+(Select
+B.Key_1 AS financial_account_ID,
+CASE    WHEN SUBSTR(C.ACCT_SCHEME_TYP, 4,1) = '1' THEN 'FS'
+        WHEN SUBSTR(C.ACCT_SCHEME_TYP, 4,1) = '2' THEN 'RB'
+        ELSE SUBSTR(C.ACCT_SCHEME_TYP, 4,1) 
+        END AS Scheme
+FROM
+(Select * FROM Bancs_base.INVM 
+WHERE Upper(trim(current_flg)) = 'Y') B
+INNER JOIN
+(Select * FROM Bancs_base.DEPP 
+WHERE Upper(trim(current_flg)) = 'Y') C
+ON B.acct_type = C.type
+AND B.int_cat = C.int_cat) AA
+INNER JOIN cap_mi_test.v_financial_account_dim BB
+ON AA.financial_account_ID = BB.financial_account_ID
+AND AA.SCHEME <> BB.SCHEME
+
+
+-- 0 Records
+ 
+
+
+Division
+=======
+
+Select counT(*)
+FROM cap_mi_test.v_financial_account_dim
+
+-- 51046
+
+Select count(*)
+FROM
+(Select
+B.Key_1 AS financial_account_ID,
+CASE    WHEN SUBSTR(C.ACCT_SCHEME_TYP, 4,1) = '1' THEN 'FS'
+        WHEN SUBSTR(C.ACCT_SCHEME_TYP, 4,1) = '2' THEN 'RB'
+        ELSE SUBSTR(C.ACCT_SCHEME_TYP, 4,1) 
+        END AS Scheme,
+CASE    WHEN SUBSTR(ACCT_SCHEME_TYP, 3,1) = '1' THEN 'Great Britain'
+        WHEN SUBSTR(ACCT_SCHEME_TYP, 3,1) = '2' THEN 'Northern Ireland'
+        ELSE SUBSTR(ACCT_SCHEME_TYP, 3,1) 
+        END AS DIVISION        		
+FROM
+(Select * FROM Bancs_base.INVM 
+WHERE Upper(trim(current_flg)) = 'Y') B
+INNER JOIN
+(Select * FROM Bancs_base.DEPP 
+WHERE Upper(trim(current_flg)) = 'Y') C
+ON B.acct_type = C.type
+AND B.int_cat = C.int_cat) AA
+INNER JOIN cap_mi_test.v_financial_account_dim BB
+ON AA.financial_account_ID = BB.financial_account_ID
+
+
+--51046
+
+-- Matching Records
+
+Select count(*)
+FROM
+(Select
+B.Key_1 AS financial_account_ID,
+CASE    WHEN SUBSTR(C.ACCT_SCHEME_TYP, 4,1) = '1' THEN 'FS'
+        WHEN SUBSTR(C.ACCT_SCHEME_TYP, 4,1) = '2' THEN 'RB'
+        ELSE SUBSTR(C.ACCT_SCHEME_TYP, 4,1) 
+        END AS Scheme,
+CASE    WHEN SUBSTR(ACCT_SCHEME_TYP, 3,1) = '1' THEN 'GB'
+        WHEN SUBSTR(ACCT_SCHEME_TYP, 3,1) = '2' THEN 'NI'
+        ELSE SUBSTR(ACCT_SCHEME_TYP, 3,1) 
+        END AS DIVISION        		
+FROM
+(Select * FROM Bancs_base.INVM 
+WHERE Upper(trim(current_flg)) = 'Y') B
+INNER JOIN
+(Select * FROM Bancs_base.DEPP 
+WHERE Upper(trim(current_flg)) = 'Y') C
+ON B.acct_type = C.type
+AND B.int_cat = C.int_cat) AA
+INNER JOIN cap_mi_test.v_financial_account_dim BB
+ON AA.financial_account_ID = BB.financial_account_ID
+AND AA.Division = BB.Division
+
+--51046
+
+-- Unmatched Records
+
+Select count(*)
+FROM
+(Select
+B.Key_1 AS financial_account_ID,
+CASE    WHEN SUBSTR(C.ACCT_SCHEME_TYP, 4,1) = '1' THEN 'FS'
+        WHEN SUBSTR(C.ACCT_SCHEME_TYP, 4,1) = '2' THEN 'RB'
+        ELSE SUBSTR(C.ACCT_SCHEME_TYP, 4,1) 
+        END AS Scheme,
+CASE    WHEN SUBSTR(ACCT_SCHEME_TYP, 3,1) = '1' THEN 'GB'
+        WHEN SUBSTR(ACCT_SCHEME_TYP, 3,1) = '2' THEN 'NI'
+        ELSE SUBSTR(ACCT_SCHEME_TYP, 3,1) 
+        END AS DIVISION        		
+FROM
+(Select * FROM Bancs_base.INVM 
+WHERE Upper(trim(current_flg)) = 'Y') B
+INNER JOIN
+(Select * FROM Bancs_base.DEPP 
+WHERE Upper(trim(current_flg)) = 'Y') C
+ON B.acct_type = C.type
+AND B.int_cat = C.int_cat) AA
+INNER JOIN cap_mi_test.v_financial_account_dim BB
+ON AA.financial_account_ID = BB.financial_account_ID
+AND AA.Division <> BB.Division
+
+
+-- 0 Records
+ 
+
+Account_Type
+==============
+
+Select counT(*)
+FROM cap_mi_test.v_financial_account_dim
+
+-- 51046
+
+Select count(*)
+FROM
+(Select
+B.Key_1 AS financial_account_ID,
+CASE    WHEN SUBSTR(C.ACCT_SCHEME_TYP, 4,1) = '1' THEN 'FS'
+        WHEN SUBSTR(C.ACCT_SCHEME_TYP, 4,1) = '2' THEN 'RB'
+        ELSE SUBSTR(C.ACCT_SCHEME_TYP, 4,1) 
+        END AS Scheme,
+CASE    WHEN SUBSTR(ACCT_SCHEME_TYP, 3,1) = '1' THEN 'GB'
+        WHEN SUBSTR(ACCT_SCHEME_TYP, 3,1) = '2' THEN 'NI'
+        ELSE SUBSTR(ACCT_SCHEME_TYP, 3,1) 
+        END AS DIVISION,
+CASE 	WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='01' THEN 'NRP'
+		WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='02' THEN 'PWC'
+		WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='03' THEN 'Employer'
+		WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='04' THEN 'Bailiff'
+		WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='05' THEN 'XXX'
+		WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='06' THEN 'Third Party'
+		WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='07' THEN 'XXX'
+		WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='08' THEN 'SAR'
+		WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='09' THEN 'Employer OD'
+		WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='10' THEN 'PWD OD'
+		WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='11' THEN 'SoS'
+		Else SUBSTR(ACCT_SCHEME_TYP,5,2)
+		END AS ACCOUNT_TYPE        		
+FROM
+(Select * FROM Bancs_base.INVM 
+WHERE Upper(trim(current_flg)) = 'Y') B
+INNER JOIN
+(Select * FROM Bancs_base.DEPP 
+WHERE Upper(trim(current_flg)) = 'Y') C
+ON B.acct_type = C.type
+AND B.int_cat = C.int_cat) AA
+INNER JOIN cap_mi_test.v_financial_account_dim BB
+ON AA.financial_account_ID = BB.financial_account_ID
+
+
+--51046
+
+-- Matching Records
+
+Select count(*)
+FROM
+(Select
+B.Key_1 AS financial_account_ID,
+CASE    WHEN SUBSTR(C.ACCT_SCHEME_TYP, 4,1) = '1' THEN 'FS'
+        WHEN SUBSTR(C.ACCT_SCHEME_TYP, 4,1) = '2' THEN 'RB'
+        ELSE SUBSTR(C.ACCT_SCHEME_TYP, 4,1) 
+        END AS Scheme,
+CASE    WHEN SUBSTR(ACCT_SCHEME_TYP, 3,1) = '1' THEN 'GB'
+        WHEN SUBSTR(ACCT_SCHEME_TYP, 3,1) = '2' THEN 'NI'
+        ELSE SUBSTR(ACCT_SCHEME_TYP, 3,1) 
+        END AS DIVISION,
+CASE 	WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='01' THEN 'NRP'
+		WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='02' THEN 'PWC'
+		WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='03' THEN 'Employer'
+		WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='04' THEN 'Bailiff'
+		WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='05' THEN 'XXX'
+		WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='06' THEN 'Third Party'
+		WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='07' THEN 'XXX'
+		WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='08' THEN 'SAR'
+		WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='09' THEN 'Employer OD'
+		WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='10' THEN 'PWD OD'
+		WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='11' THEN 'SoS'
+		Else SUBSTR(ACCT_SCHEME_TYP,5,2)
+		END AS ACCOUNT_TYPE        		
+FROM
+(Select * FROM Bancs_base.INVM 
+WHERE Upper(trim(current_flg)) = 'Y') B
+INNER JOIN
+(Select * FROM Bancs_base.DEPP 
+WHERE Upper(trim(current_flg)) = 'Y') C
+ON B.acct_type = C.type
+AND B.int_cat = C.int_cat) AA
+INNER JOIN cap_mi_test.v_financial_account_dim BB
+ON AA.financial_account_ID = BB.financial_account_ID
+AND AA.ACCOUNT_TYPE = BB.ACCOUNT_TYPE
+
+
+--51046
+
+-- Unmatched Records
+
+Select count(*)
+FROM
+(Select
+B.Key_1 AS financial_account_ID,
+CASE    WHEN SUBSTR(C.ACCT_SCHEME_TYP, 4,1) = '1' THEN 'FS'
+        WHEN SUBSTR(C.ACCT_SCHEME_TYP, 4,1) = '2' THEN 'RB'
+        ELSE SUBSTR(C.ACCT_SCHEME_TYP, 4,1) 
+        END AS Scheme,
+CASE    WHEN SUBSTR(ACCT_SCHEME_TYP, 3,1) = '1' THEN 'GB'
+        WHEN SUBSTR(ACCT_SCHEME_TYP, 3,1) = '2' THEN 'NI'
+        ELSE SUBSTR(ACCT_SCHEME_TYP, 3,1) 
+        END AS DIVISION,
+CASE 	WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='01' THEN 'NRP'
+		WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='02' THEN 'PWC'
+		WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='03' THEN 'Employer'
+		WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='04' THEN 'Bailiff'
+		WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='05' THEN 'XXX'
+		WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='06' THEN 'Third Party'
+		WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='07' THEN 'XXX'
+		WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='08' THEN 'SAR'
+		WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='09' THEN 'Employer OD'
+		WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='10' THEN 'PWD OD'
+		WHEN SUBSTR(ACCT_SCHEME_TYP,5,2)='11' THEN 'SoS'
+		Else SUBSTR(ACCT_SCHEME_TYP,5,2)
+		END AS ACCOUNT_TYPE        		
+FROM
+(Select * FROM Bancs_base.INVM 
+WHERE Upper(trim(current_flg)) = 'Y') B
+INNER JOIN
+(Select * FROM Bancs_base.DEPP 
+WHERE Upper(trim(current_flg)) = 'Y') C
+ON B.acct_type = C.type
+AND B.int_cat = C.int_cat) AA
+INNER JOIN cap_mi_test.v_financial_account_dim BB
+ON AA.financial_account_ID = BB.financial_account_ID
+AND AA.Account_Type <> BB.Account_Type
+
+
+-- 0 Records
+ 
