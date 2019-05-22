@@ -1,0 +1,184 @@
+Select Account_TYpe,
+CASE WHEN Account_type = 'NRP'
+THEN SUM( aggregate_value_of_nrp_child_maintenance_liability_charged, aggregate_value_of_ongoing_child_maintenance_cash_received, 
+aggregate_value_of_cash_refunds_paid_to_nrp, aggregate_value_of_non_cash_receipt, aggregate_value_of_write_offs_nrp) 
+ELSE SUM( aggregate_value_of_pwc_child_maintenance_liability_charged, aggregate_value_of_child_maintenance_cash_paid, 
+aggregate_value_of_non_cash_payment, aggregate_value_of_write_off_pwc)
+END AS COLLECT_AND_PAY
+FROM cap_mi_test.gl_account_daily_aggregated_fact
+group by Account_TYpe
+
+
+Select bancs_account_number,aggregate_value_of_non_cash_receipt,
+aggregate_value_of_ongoing_child_maintenance_cash_received,
+--SUM(CAST(aggregate_value_of_ongoing_child_maintenance_cash_received as decimal (10,10)),CAST(aggregate_value_of_non_cash_receipt as decimal (10,10)) )
+--CAST(aggregate_value_of_ongoing_child_maintenance_cash_received as decimal (10,10)),CAST(aggregate_value_of_non_cash_receipt as decimal (10,10)),
+round(aggregate_value_of_non_cash_receipt , 2),
+round(aggregate_value_of_ongoing_child_maintenance_cash_received,2)
+FROM cap_mi_test.gl_account_daily_aggregated_fact
+Where aggregate_value_of_non_cash_receipt <> 0
+AND Bancs_account_number = '0000000300031498'
+--group by  bancs_account_number
+Limit 100
+
+Select count(*)
+FROM cap_mi_test.gl_account_daily_aggregated_fact
+Where aggregate_value_of_ongoing_child_maintenance_cash_received = NULL
+
+
+Select Account_type,SUM(COLLECT_AND_PAY)
+FROM
+(Select Account_TYpe,
+CASE WHEN Account_type = 'NRP'
+     THEN (aggregate_value_of_nrp_child_maintenance_liability_charged+ aggregate_value_of_ongoing_child_maintenance_cash_received+ 
+aggregate_value_of_cash_refunds_paid_to_nrp+ aggregate_value_of_non_cash_receipt+ aggregate_value_of_write_offs_nrp) 
+     WHEN Account_type = 'PWC'
+     THEN   (aggregate_value_of_pwc_child_maintenance_liability_charged+ aggregate_value_of_child_maintenance_cash_paid+ 
+aggregate_value_of_non_cash_payment+ aggregate_value_of_write_off_pwc)
+     ELSE 0
+END AS COLLECT_AND_PAY
+FROM cap_mi_test.gl_account_daily_aggregated_fact
+--Where 
+--group by Account_TYpe
+) AA
+group by Account_type
+
+
+
+
+Select Account_type,SUM(COLLECT_AND_PAY)
+FROM
+(Select Account_TYpe,
+CASE WHEN Account_type = 'NRP'
+     THEN (aggregate_value_of_nrp_child_maintenance_liability_charged+ aggregate_value_of_ongoing_child_maintenance_cash_received+ 
+aggregate_value_of_cash_refunds_paid_to_nrp+ aggregate_value_of_non_cash_receipt+ aggregate_value_of_write_offs_nrp) 
+     WHEN Account_type = 'PWC'
+     THEN   (aggregate_value_of_pwc_child_maintenance_liability_charged+ aggregate_value_of_child_maintenance_cash_paid+ 
+aggregate_value_of_non_cash_payment+ aggregate_value_of_write_off_pwc)
+     ELSE 0
+END AS COLLECT_AND_PAY
+
+-- COLLECT_AND_PAY
+
+Select SUM(aggregate_value_of_nrp_child_maintenance_liability_charged)+SUM(aggregate_value_of_ongoing_child_maintenance_cash_received )+SUM(aggregate_value_of_cash_refunds_paid_to_nrp)
++ SUM(aggregate_value_of_non_cash_receipt)+SUM(aggregate_value_of_write_offs_nrp) AS COLLECT_AND_PAY_NRP,
+SUM(aggregate_value_of_pwc_child_maintenance_liability_charged)+ SUM(aggregate_value_of_child_maintenance_cash_paid)+ 
+SUM(aggregate_value_of_non_cash_payment)+ SUM(aggregate_value_of_write_off_pwc) AS COLLECT_AND_PAY_PWC
+FROM cap_mi_test.gl_account_daily_aggregated_fact
+--Where Division ='GB'
+Where Division ='NI'
+
+
+-- GB
+
+ 	collect_and_pay_nrp	collect_and_pay_pwc
+1	-25185107370.11004	-19988423.99000061 (Summary View - 19,912,193.68 and total view - 19,988.42K)
+
+
+-- NI
+
+ 	collect_and_pay_nrp	collect_and_pay_pwc
+1	-28084976610.31	    -3929814.690000209 (Summary View - 3,908,880.26 and total view - 3,929.81K)
+
+
+DIRECT PAY
+===========
+
+Select SUM( aggregate_value_of_nrp_direct_pay_maintenance_charged) +SUM( aggregate_value_of_nrp_direct_pay_receipt) AS DIRECT_PAY_NRP,
+SUM( aggregate_value_of_pwc_direct_pay_maintenance_charged) + SUM( aggregate_value_of_pwc_direct_pay_payment) AS DIECT_PAY_PWC
+FROM cap_mi_test.gl_account_daily_aggregated_fact
+--Where Division ='GB'
+Where Division ='NI'
+
+ -- GB
+ 
+ 	direct_pay_nrp	    diect_pay_pwc
+1	2402723.0800001314	-2414052.5600001896
+
+
+-- NI
+
+ 	direct_pay_nrp	    diect_pay_pwc
+1	475521.969999996	-473665.2499999958
+
+Residual Arrears (Transitioned Debt)
+========================================
+
+Select SUM( aggregate_value_of_nrp_residual_arrears_transitioned) + SUM( aggregate_value_of_residual_arrears_cash_received)
++ SUM( aggregate_value_of_residual_arrears_cash_paid) + SUM( aggregate_value_of_residual_arrears_non_cash_receipt) 
++SUM( aggregate_value_of_residual_arrears_written_off_nrp) AS RESIDUAL_ARREARS_NRP,
+SUM( aggregate_value_of_pwc_residual_arrears_transitioned) + SUM( aggregate_value_of_residual_arrears_non_cash_payment)
++ SUM( aggregate_value_of_legacy_write_off_pwc) AS RESIDUAL_ARREARS_PWC
+FROM cap_mi_test.gl_account_daily_aggregated_fact
+--Where Division ='GB'
+Where Division ='NI'
+
+-- GB
+
+ 	residual_arrears_nrp	residual_arrears_pwc
+1	67521308.55999997	    -19607721.599999975 (Summary view 19,607.72K)
+
+--NI
+
+ 	residual_arrears_nrp	residual_arrears_pwc
+1	2237017.84	            -407071.82000000007 (Summary view 390,426.53)
+
+NON CM Balance
+================
+ 
+Select SUM(   aggregate_value_of_non_child_maintenance_charged  ) + SUM( aggregate_value_of_cmg_cost_written_off) AS NON_CM
+FROM cap_mi_test.gl_account_daily_aggregated_fact
+Where Division ='GB'
+--Where Division ='NI'
+
+-- GB
+ 	non_cm
+1	4138966.76
+
+-- NI
+
+ 	non_cm
+1	9543
+
+
+Enforcement Charges
+====================
+ 
+Select SUM(aggregate_value_of_nrp_enforcement_charges) + SUM( aggregate_value_of_nrp_enforcement_charge_cash_received) 
++ SUM(aggregate_value_of_nrp_enforcement_write_off)  AS ENFORCEMENT_CHARGE
+FROM cap_mi_test.gl_account_daily_aggregated_fact
+Where Division ='GB'
+--Where Division ='NI'
+
+
+-- GB
+ 	enforcement_charge
+1	71188.59 (Summary View - 68,031.08)
+
+
+-- NI
+
+ 	enforcement_charge
+1	6777.92 (Summary View - 6,294.78)
+
+
+Collection Charges
+==================
+
+Select SUM( aggregate_value_of_nrp_collection_charges) + SUM( aggregate_value_of_nrp_collection_cash_received) +
+SUM( aggregate_value_of_nrp_coll_charges_written_off) AS COLLECTION_CHARGE
+FROM cap_mi_test.gl_account_daily_aggregated_fact
+--Where Division ='GB'
+Where Division ='NI'
+
+-- GB
+
+ 	collection_charge
+1	1866004.8499995375
+
+
+-- NI
+
+
++ SUM(      	collection_charge
+1	453167.3899999885
