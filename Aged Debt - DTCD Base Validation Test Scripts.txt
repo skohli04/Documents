@@ -1,0 +1,36 @@
+-- DTCD
+--===========
+
+-- Record count checks
+=======================
+
+Select count(*) from Bancs_base.DTCD;
+
+-- 46
+
+Select count(*) from Bancs_raw.DTCD;
+
+-- 46
+
+-- Record Differences
+=======================
+
+-- RAW -> BASE
+
+Select *
+From Bancs_raw.DTCD RAW
+WHERE  NOT EXISTS (Select * from Bancs_base.DTCD BASE 
+WHERE RAW.row_wid = BASE.row_wid);
+
+-- 0 Records
+
+-- BASE -> RAW
+
+Select *
+From Bancs_base.DTCD BASE
+WHERE  NOT EXISTS (Select * from Bancs_raw.DTCD RAW 
+WHERE RAW.row_wid = BASE.row_wid);
+
+
+-- 0 Records
+
