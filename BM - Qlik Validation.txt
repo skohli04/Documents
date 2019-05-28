@@ -1,6 +1,7 @@
 
 COLLECT_AND_PAY
 =================
+-- NRP
 
 Select 
 SUM(aggregate_value_of_nrp_child_maintenance_liability_charged)+SUM(aggregate_value_of_ongoing_child_maintenance_cash_received )
@@ -19,6 +20,7 @@ AND Division = 'NI'
 
 -28084977018.209995
 
+-- PWC
 
 Select 
 SUM(aggregate_value_of_pwc_child_maintenance_liability_charged)+ SUM(aggregate_value_of_child_maintenance_cash_paid)+ 
